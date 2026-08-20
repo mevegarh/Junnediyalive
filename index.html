@@ -62,6 +62,8 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
         .modal.active { display: flex; }
         .modal-body { background: var(--card-bg); width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); }
+        
+        .live-banner-alert { background: #ef4444; color: white; font-weight: bold; padding: 0.6rem; border-radius: 8px; text-align: center; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
     </style>
 </head>
 <body>
@@ -83,7 +85,7 @@
             <div class="card" style="text-align: center; max-width: 450px; margin: 2rem auto;">
                 <h2 style="margin-bottom: 1.5rem;">Select Login Type</h2>
                 <button class="btn" style="margin-bottom: 1rem;" onclick="showLogin('teacher')">👨‍🏫 Teacher Login</button>
-                <button class="btn btn-secondary" onclick="showLogin('student')">👨‍🎓 Student Login</button>
+                <button id="btnStudentLogin" class="btn btn-secondary" onclick="showLogin('student')">👨‍🎓 Student Login</button>
             </div>
         </div>
 
@@ -91,7 +93,7 @@
         <div id="view-login" class="view">
             <div class="card" style="max-width: 450px; margin: 2rem auto;">
                 <h2 id="login-title" style="margin-bottom: 0.5rem;">Login</h2>
-                <p style="color: var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">Your account and password will be saved automatically.</p>
+                <p style="color: var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">Your account details will be saved automatically.</p>
                 <div class="form-group">
                     <label>Teacher / Student Name</label>
                     <input type="text" id="loginName" class="form-control" placeholder="Enter Name">
@@ -162,17 +164,6 @@
                 </div>
             </div>
 
-            <!-- Active Live Class Notification Card -->
-            <div id="active-stream-card" class="card" style="display:none; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.08);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span class="live-tag" style="position:static;">🔴 STREAMING NOW</span>
-                    <span id="studentBannerTeacher" style="font-size: 0.85rem; color: var(--accent); font-weight: bold;">Teacher: ...</span>
-                </div>
-                <h3 id="studentBannerSubject" style="font-size: 1.2rem; color: #fff;">Subject</h3>
-                <p id="studentBannerTopic" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Topic: ...</p>
-                <button class="btn btn-danger" onclick="joinClass(null, true)">▶ Join Live Class</button>
-            </div>
-
             <div class="card">
                 <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Saved Classes Archive</h3>
                 <div id="student-archive-list"></div>
@@ -182,8 +173,12 @@
         <!-- 5. WATCH CLASS VIEW (For Students) -->
         <div id="view-student-class" class="view">
             <div class="card">
-                <button class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Back to Dashboard</button>
+                <button id="btnBackToDash" class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Saved Classes Archive</button>
                 
+                <div class="live-banner-alert" id="liveAlertBanner" style="display:none;">
+                    🔴 LIVE STREAM IN PROGRESS
+                </div>
+
                 <div class="video-wrapper">
                     <video id="studentVideo" autoplay controls playsinline></video>
                     <div id="studentVideoBadge" class="live-tag">🔴 CLASS IS LIVE</div>
@@ -232,7 +227,7 @@
         let currentUser = null;
         let currentRoleSelection = '';
         let liveMediaStream = null;
-        let currentFacingMode = "environment"; // Starts with Back Camera
+        let currentFacingMode = "environment"; 
         let mediaRecorder = null;
         let recordedChunks = [];
         let selectedClassForStudent = null;
@@ -284,7 +279,7 @@
 
             if (existingUser) {
                 if (existingUser.password !== passwordInput) {
-                    alert('Incorrect Password! Name and Password must match.');
+                    alert('Incorrect Password!');
                     return;
                 }
                 currentUser = existingUser;
@@ -348,7 +343,7 @@
             }
 
             try {
-                currentFacingMode = "environment"; // Force Back Camera
+                currentFacingMode = "environment";
                 recordedChunks = [];
                 liveMediaStream = await getCameraStream(currentFacingMode);
 
@@ -442,6 +437,66 @@
             alert('Class finished! Video automatically saved to Saved Classes.');
         }
 
+        function autoConnectStudentToLive(liveStreamData) {
+            if (!currentUser) {
+                currentUser = { id: 'guest-student', name: 'Student', role: 'student' };
+            }
+            if (currentUser.role === 'teacher') return;
+
+            selectedClassForStudent = liveStreamData;
+            
+            const studentVideo = document.getElementById('studentVideo');
+            const videoBadge = document.getElementById('studentVideoBadge');
+            
+            if (liveMediaStream) {
+                studentVideo.srcObject = liveMediaStream;
+            }
+
+            videoBadge.innerText = '🔴 CLASS IS LIVE';
+            document.getElementById('liveAlertBanner').style.display = 'block';
+            document.getElementById('classSubject').innerText = selectedClassForStudent.subject;
+            document.getElementById('classTopic').innerText = 'Topic: ' + selectedClassForStudent.topic;
+            document.getElementById('classTeacher').innerText = 'Teacher: ' + selectedClassForStudent.teacherName;
+
+            renderFeeds();
+            
+            if (!document.getElementById('view-student-class').classList.contains('active')) {
+                showView('view-student-class');
+            }
+        }
+
+        function checkLiveStreamStatus() {
+            const liveStreamRaw = localStorage.getItem('junnediya_live_stream');
+            const studentLoginBtn = document.getElementById('btnStudentLogin');
+
+            if (liveStreamRaw) {
+                const liveStreamData = JSON.parse(liveStreamRaw);
+
+                // Hide Student Login button when streaming is active
+                if (studentLoginBtn) studentLoginBtn.style.display = 'none';
+
+                // Automatically direct non-teacher users/students to the live class
+                if (!currentUser || currentUser.role === 'student') {
+                    autoConnectStudentToLive(liveStreamData);
+                }
+            } else {
+                // Show Student Login button back when no stream is live
+                if (studentLoginBtn) studentLoginBtn.style.display = 'block';
+
+                // If student was watching a live class and stream stopped
+                if (document.getElementById('view-student-class').classList.contains('active') && selectedClassForStudent && selectedClassForStudent.id.startsWith('live-')) {
+                    alert('The class live stream has ended. The video has been automatically saved!');
+                    document.getElementById('liveAlertBanner').style.display = 'none';
+                    if (currentUser && currentUser.role === 'student') {
+                        showView('view-student-dash');
+                        renderStudentArchive();
+                    } else {
+                        showView('view-role-select');
+                    }
+                }
+            }
+        }
+
         function renderTeacherArchive() {
             const container = document.getElementById('teacher-archive-list');
             const myClasses = savedClasses.filter(c => c.teacherId === currentUser.id);
@@ -476,23 +531,6 @@
         }
 
         function updateStudentDashboard() {
-            const activeStreamCard = document.getElementById('active-stream-card');
-            const liveStreamRaw = localStorage.getItem('junnediya_live_stream');
-            const selectedTeacherFilter = document.getElementById('studentTeacherFilter').value;
-
-            if (liveStreamRaw) {
-                const liveStreamData = JSON.parse(liveStreamRaw);
-                if (selectedTeacherFilter === 'ALL' || selectedTeacherFilter === liveStreamData.teacherId) {
-                    activeStreamCard.style.display = 'block';
-                    document.getElementById('studentBannerSubject').innerText = liveStreamData.subject;
-                    document.getElementById('studentBannerTopic').innerText = 'Topic: ' + liveStreamData.topic;
-                    document.getElementById('studentBannerTeacher').innerText = 'Teacher: ' + liveStreamData.teacherName;
-                } else {
-                    activeStreamCard.style.display = 'none';
-                }
-            } else {
-                activeStreamCard.style.display = 'none';
-            }
             renderStudentArchive();
         }
 
@@ -533,12 +571,14 @@
                 selectedClassForStudent = liveData;
                 studentVideo.srcObject = liveMediaStream;
                 videoBadge.innerText = '🔴 CLASS IS LIVE';
+                document.getElementById('liveAlertBanner').style.display = 'block';
             } else {
                 selectedClassForStudent = savedClasses.find(c => c.id === classId);
                 if (!selectedClassForStudent) return;
                 studentVideo.srcObject = null;
                 studentVideo.src = selectedClassForStudent.videoUrl;
                 videoBadge.innerText = '📹 SAVED CLASS';
+                document.getElementById('liveAlertBanner').style.display = 'none';
             }
 
             document.getElementById('classSubject').innerText = selectedClassForStudent.subject;
@@ -580,8 +620,9 @@
             const text = input.value.trim();
             if (!text || !selectedClassForStudent) return;
 
+            const userName = currentUser ? currentUser.name : 'Student';
             if (!selectedClassForStudent.comments) selectedClassForStudent.comments = [];
-            selectedClassForStudent.comments.push({ user: currentUser.name, text: text });
+            selectedClassForStudent.comments.push({ user: userName, text: text });
             
             if (selectedClassForStudent.id.startsWith('live-')) {
                 localStorage.setItem('junnediya_live_stream', JSON.stringify(selectedClassForStudent));
@@ -600,10 +641,11 @@
             const text = document.getElementById('doubtText').value.trim();
             if (!text || !selectedClassForStudent) return;
 
+            const userName = currentUser ? currentUser.name : 'Student';
             if (!selectedClassForStudent.doubts) selectedClassForStudent.doubts = [];
             selectedClassForStudent.doubts.push({
                 id: 'd-' + Date.now(),
-                user: currentUser.name,
+                user: userName,
                 text: text,
                 answerText: '',
                 answerAudioUrl: null,
@@ -716,12 +758,8 @@
             }
         }
 
-        // Auto-refresh student dashboard every 2 seconds to capture live streams across phones/tabs
-        setInterval(() => {
-            if (currentUser && currentUser.role === 'student') {
-                updateStudentDashboard();
-            }
-        }, 2000);
+        // Automatic checking loop for live streaming status across devices
+        setInterval(checkLiveStreamStatus, 1000);
     </script>
 </body>
 </html>
