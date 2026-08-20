@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Janedia Live Classroom</title>
+    <title>Janedia Multi-Teacher Classroom</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -16,213 +16,252 @@
             --text-muted: #94a3b8;
             --danger: #ef4444;
             --success: #10b981;
+            --accent: #f59e0b;
             --radius: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* Header */
         header { background: var(--card-bg); padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .school-title h1 { font-size: 1.1rem; color: #60a5fa; }
-        .school-title h2 { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+        .school-title h1 { font-size: 1rem; color: #60a5fa; }
+        .school-title h2 { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+        .user-badge { font-size: 0.8rem; background: #334155; padding: 0.3rem 0.6rem; border-radius: 6px; color: var(--accent); }
         .btn-logout { background: #334155; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; display: none; }
 
-        /* Layout Container */
-        main { flex: 1; padding: 1rem; max-width: 800px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; justify-content: center; }
+        main { flex: 1; padding: 1rem; max-width: 850px; margin: 0 auto; width: 100%; }
         .view { display: none; }
         .view.active { display: block; }
 
-        /* Common Elements */
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-        .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: white; padding: 0.75rem; border-radius: 8px; font-size: 1rem; outline: none; }
+        .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: white; padding: 0.75rem; border-radius: 8px; font-size: 0.95rem; outline: none; }
         
-        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; }
+        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
         .btn:hover { background: var(--primary-hover); }
         .btn-danger { background: var(--danger); }
         .btn-secondary { background: #334155; }
-        .btn-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.85rem; width: auto; }
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
 
-        /* Video Player */
         .video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .live-tag { position: absolute; top: 10px; left: 10px; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+        .live-tag { position: absolute; top: 10px; left: 10px; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; z-index: 2; }
         .recorded-tag { background: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; display: inline-block; margin-bottom: 0.5rem; }
 
-        /* Student Live Class Card */
-        .live-banner { background: linear-gradient(135deg, #1e3a8a, #2563eb); border-radius: var(--radius); padding: 1.5rem; text-align: center; cursor: pointer; border: 2px solid #60a5fa; }
-        .live-banner h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+        .archive-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; }
+        .archive-header { display: flex; justify-content: space-between; align-items: flex-start; }
 
-        /* Comments & Doubts */
-        .comment-box { height: 180px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .comment-item { font-size: 0.85rem; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 6px; }
-        .comment-user { color: #60a5fa; font-weight: bold; font-size: 0.75rem; }
+        .box-feed { height: 160px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+        .feed-item { font-size: 0.85rem; background: rgba(255,255,255,0.04); padding: 0.6rem; border-radius: 6px; border-left: 3px solid var(--primary); }
+        .feed-user { color: #60a5fa; font-weight: bold; font-size: 0.8rem; margin-bottom: 0.2rem; }
+        .answer-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 0.5rem; border-radius: 6px; margin-top: 0.4rem; color: #a7f3d0; font-size: 0.8rem; }
 
-        .chat-input-row { display: flex; gap: 0.5rem; }
-
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
         .modal.active { display: flex; }
-        .modal-body { background: var(--card-bg); width: 100%; max-width: 400px; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); }
+        .modal-body { background: var(--card-bg); width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
     <header>
         <div class="school-title">
-            <h1>Janedia Live Classroom</h1>
-            <h2>Junnediya English Medium School</h2>
+            <h1>Janedia Classroom</h1>
+            <h2 id="teacherHeaderTitle">Junnediya English Medium School</h2>
         </div>
-        <button id="logoutBtn" class="btn-logout" onclick="logout()">Logout</button>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span id="userBadge" class="user-badge" style="display:none;"></span>
+            <button id="logoutBtn" class="btn-logout" onclick="logout()">Logout</button>
+        </div>
     </header>
 
     <main>
-        <!-- 1. CHOOSE LOGIN TYPE -->
+        <!-- 1. LOGIN TYPE SELECT -->
         <div id="view-role-select" class="view active">
-            <div class="card" style="text-align: center;">
-                <h2 style="margin-bottom: 1.5rem;">Select Login Type</h2>
-                <button class="btn" style="margin-bottom: 1rem;" onclick="showLogin('teacher')">Teacher Login</button>
-                <button class="btn btn-secondary" onclick="showLogin('student')">Student Login</button>
+            <div class="card" style="text-align: center; max-width: 450px; margin: 2rem auto;">
+                <h2 style="margin-bottom: 1.5rem;">Select Account Type</h2>
+                <button class="btn" style="margin-bottom: 1rem;" onclick="showLogin('teacher')">👨‍🏫 Teacher Login</button>
+                <button class="btn btn-secondary" onclick="showLogin('student')">👨‍🎓 Student Login</button>
             </div>
         </div>
 
         <!-- 2. LOGIN FORM -->
         <div id="view-login" class="view">
-            <div class="card">
+            <div class="card" style="max-width: 450px; margin: 2rem auto;">
                 <h2 id="login-title" style="margin-bottom: 1rem;">Login</h2>
                 <div class="form-group">
-                    <label>Your Full Name</label>
-                    <input type="text" id="loginName" class="form-control" placeholder="Enter your name">
+                    <label>Your Name (Teacher ID)</label>
+                    <input type="text" id="loginName" class="form-control" placeholder="e.g. Mr. Sharma, Mrs. Gupta">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="Set password">
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter password">
                 </div>
-                <button class="btn" onclick="submitLogin()">Enter Classroom</button>
+                <button class="btn" onclick="submitLogin()">Login & Open Dashboard</button>
                 <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="showView('view-role-select')">Back</button>
             </div>
         </div>
 
-        <!-- 3. TEACHER DASHBOARD -->
+        <!-- 3. ISOLATED TEACHER DASHBOARD -->
         <div id="view-teacher-dash" class="view">
             <div id="teacher-setup-card" class="card">
-                <h3>Start a Live Class</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 1rem;">Defaults to back camera 📷 (Automatically recorded)</p>
+                <h3 id="teacherDashHeading">Teacher Live Broadcasting</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Start a live video class for your students.</p>
                 <div class="form-group">
                     <label>Subject</label>
-                    <input type="text" id="subjectInput" class="form-control" placeholder="e.g. Physics">
+                    <input type="text" id="subjectInput" class="form-control" placeholder="e.g. Mathematics">
                 </div>
                 <div class="form-group">
                     <label>Topic</label>
-                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Laws of Motion">
+                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Fractions & Decimals">
                 </div>
                 <button class="btn" onclick="startStream()">🎥 START LIVE STREAM</button>
             </div>
 
+            <!-- Active Stream Broadcast Card -->
             <div id="teacher-stream-card" class="card" style="display: none;">
                 <div class="video-wrapper">
                     <video id="teacherVideo" autoplay muted playsinline></video>
-                    <div class="live-tag" id="cameraTag">🔴 BROADCASTING LIVE (BACK CAMERA)</div>
+                    <div class="live-tag">🔴 BROADCASTING LIVE</div>
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-secondary" onclick="switchCamera()">🔄 Switch Camera</button>
-                    <button class="btn btn-danger" onclick="stopStream()">🛑 Stop & Save Class</button>
+                    <button class="btn btn-secondary btn-sm" onclick="switchCamera()">🔄 Switch Camera</button>
+                    <button class="btn btn-danger btn-sm" onclick="stopStream()">🛑 Stop & Save Stream</button>
                 </div>
 
-                <h3 id="teacherSubjectDisplay">Physics</h3>
-                <p id="teacherTopicDisplay" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Topic: Laws of Motion</p>
-                
-                <div style="margin-top: 1.5rem;">
-                    <h4>Incoming Student Doubts</h4>
-                    <div id="teacherDoubtsList" class="comment-box" style="height: 120px; margin-top: 0.5rem;">
-                        <div style="color: var(--text-muted); font-size: 0.85rem;">No doubts asked yet.</div>
-                    </div>
-                </div>
+                <h3 id="teacherSubjectDisplay">Subject</h3>
+                <p id="teacherTopicDisplay" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Topic: ...</p>
+            </div>
+
+            <!-- Teacher's Personal Saved Classes -->
+            <div class="card">
+                <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">📁 My Saved Classes & Doubts</h3>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Only showing classes recorded by <strong id="teacherMyName">You</strong>.</p>
+                <div id="teacher-archive-list"></div>
             </div>
         </div>
 
-        <!-- 4. STUDENT DASHBOARD -->
+        <!-- 4. STUDENT DASHBOARD (ALL TEACHERS) -->
         <div id="view-student-dash" class="view">
-            <!-- Active Stream Section -->
-            <div id="no-stream-card" class="card" style="text-align: center;">
-                <h3>No Live Class Active</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Please wait for your teacher to start a live session.</p>
-            </div>
-
-            <div id="active-stream-card" class="live-banner" style="display: none; margin-bottom: 1rem;" onclick="joinClass()">
-                <div class="live-tag" style="position: static; display: inline-block; margin-bottom: 0.5rem;">🔴 LIVE NOW</div>
-                <h3 id="studentBannerSubject">Physics Class</h3>
-                <p id="studentBannerTopic" style="font-size: 0.9rem; opacity: 0.9;">Topic: Laws of Motion</p>
-                <p id="studentBannerTeacher" style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">Teacher: Mr. Teacher</p>
-                <br>
-                <button class="btn" style="background: white; color: var(--primary);">Click to Join Live Class</button>
-            </div>
-
-            <!-- Saved/Recorded Classes Section -->
-            <div class="card" style="margin-top: 1rem;">
-                <h3 style="margin-bottom: 1rem; color: #60a5fa;">📁 Saved Live Streams</h3>
-                <div id="saved-classes-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                    <p style="color: var(--text-muted); font-size: 0.85rem;">No recorded sessions available yet.</p>
+            <div class="card">
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label>Filter Classes by Teacher:</label>
+                    <select id="studentTeacherFilter" class="form-control" onchange="renderStudentArchive()">
+                        <option value="ALL">All Teachers</option>
+                    </select>
                 </div>
+            </div>
+
+            <div id="active-stream-card" class="card" style="display:none; border: 2px solid #2563eb; text-align: center;" onclick="joinClass(null, true)">
+                <span class="live-tag" style="position:static; display:inline-block; margin-bottom:0.5rem;">🔴 LIVE NOW</span>
+                <h3 id="studentBannerSubject">Science</h3>
+                <p id="studentBannerTopic" style="font-size: 0.9rem;">Topic: Cells</p>
+                <p id="studentBannerTeacher" style="font-size: 0.8rem; color: var(--accent); margin-top: 0.4rem;">Teacher: ...</p>
+                <button class="btn" style="margin-top: 0.8rem;">Click to Join Live Stream</button>
+            </div>
+
+            <div class="card">
+                <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Saved Recorded Classes (All Teachers)</h3>
+                <div id="student-archive-list"></div>
             </div>
         </div>
 
-        <!-- 5. STUDENT LIVE CLASS VIEW -->
+        <!-- 5. STUDENT STREAM & DOUBTS WATCH VIEW -->
         <div id="view-student-class" class="view">
             <div class="card">
-                <button class="btn btn-secondary" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Leave Class</button>
+                <button class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Back to Dashboard</button>
                 
                 <div class="video-wrapper">
-                    <video id="studentVideo" autoplay playsinline></video>
-                    <div class="live-tag">🔴 LIVE</div>
+                    <video id="studentVideo" autoplay controls playsinline></video>
+                    <div id="studentVideoBadge" class="live-tag">🔴 LIVE</div>
                 </div>
 
-                <h2 id="classSubject">Physics</h2>
-                <p id="classTopic" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Topic: Laws of Motion</p>
+                <h2 id="classSubject">Subject</h2>
+                <p id="classTopic" style="color: var(--text-muted); font-size: 0.85rem;">Topic: ...</p>
+                <p id="classTeacher" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 1rem;">Teacher: ...</p>
 
-                <button class="btn btn-secondary" style="margin-bottom: 1rem;" onclick="openDoubtModal()">❓ Ask a Doubt</button>
+                <button class="btn btn-sm btn-secondary" style="margin-bottom: 1rem;" onclick="openDoubtModal()">❓ Ask Doubt to Teacher</button>
 
-                <h4>Class Comments</h4>
-                <div class="comment-box" id="commentsFeed"></div>
+                <h4>❓ Student Doubts & Teacher Answers</h4>
+                <div class="box-feed" id="studentDoubtsFeed"></div>
+
+                <h4 style="margin-top: 0.8rem;">💬 Live Comments</h4>
+                <div class="box-feed" id="commentsFeed"></div>
                 
-                <div class="chat-input-row">
+                <div style="display: flex; gap: 0.5rem;">
                     <input type="text" id="commentInput" class="form-control" placeholder="Write a comment..." onkeypress="if(event.key==='Enter') sendComment()">
-                    <button class="btn" style="width: auto; padding: 0 1.2rem;" onclick="sendComment()">Send</button>
+                    <button class="btn" style="width: auto;" onclick="sendComment()">Send</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Ask Doubt Modal -->
+    <!-- Modal 1: Ask Doubt -->
     <div id="doubtModal" class="modal">
         <div class="modal-body">
-            <h3 style="margin-bottom: 1rem;">Ask Your Doubt</h3>
-            <div class="form-group">
-                <textarea id="doubtText" class="form-control" rows="3" placeholder="Type your doubt clearly..."></textarea>
-            </div>
-            <button class="btn" onclick="submitDoubt()">Send to Teacher</button>
+            <h3>Ask Your Doubt</h3>
+            <textarea id="doubtText" class="form-control" rows="3" style="margin: 1rem 0;" placeholder="Type your question here..."></textarea>
+            <button class="btn" onclick="submitDoubt()">Submit Doubt</button>
             <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="closeDoubtModal()">Cancel</button>
         </div>
     </div>
 
+    <!-- Modal 2: Teacher Doubt Resolver -->
+    <div id="teacherDoubtsModal" class="modal">
+        <div class="modal-body">
+            <h3 id="teacherModalTitle">Doubts Management</h3>
+            <div id="teacherDoubtsContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; margin-top: 1rem;"></div>
+            <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="closeTeacherDoubtsModal()">Close</button>
+        </div>
+    </div>
+
     <script>
+        // State Storage
         let currentUser = null;
         let currentRoleSelection = '';
         let liveStreamState = null;
         let currentFacingMode = "environment";
-        
-        // Recording state
         let mediaRecorder = null;
         let recordedChunks = [];
-        let savedClasses = []; // Array of saved live streams
+        let selectedClassForStudent = null;
+
+        let audioRecorder = null;
+        let audioChunks = [];
+        let recordingDoubtId = null;
+
+        // Central Database of Saved Classes across ALL teachers
+        let savedClasses = [
+            {
+                id: 'c-1',
+                teacherId: 'mr-sharma',
+                teacherName: 'Mr. Sharma',
+                subject: 'Mathematics',
+                topic: 'Linear Equations',
+                dateLabel: 'Yesterday',
+                videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                comments: [],
+                doubts: [
+                    { id: 'd-1', user: 'Rohan', text: 'How do we find X when Y is 0?', answerText: 'Substitute Y=0 into the main equation and simplify.', answerAudioUrl: null, isAnswered: true }
+                ]
+            },
+            {
+                id: 'c-2',
+                teacherId: 'mrs-gupta',
+                teacherName: 'Mrs. Gupta',
+                subject: 'Science',
+                topic: 'Photosynthesis Process',
+                dateLabel: '2 Days Ago',
+                videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                comments: [],
+                doubts: []
+            }
+        ];
 
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            document.getElementById('logoutBtn').style.display = currentUser ? 'block' : 'none';
         }
 
         function showLogin(role) {
@@ -236,15 +275,24 @@
             const pass = document.getElementById('loginPassword').value.trim();
 
             if (!name || !pass) {
-                alert('Please enter both name and password.');
+                alert('Please enter Name and Password.');
                 return;
             }
 
-            currentUser = { role: currentRoleSelection, name: name };
+            const teacherId = name.toLowerCase().replace(/\s+/g, '-');
+            currentUser = { role: currentRoleSelection, name: name, id: teacherId };
+
+            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫' : '👨‍🎓'} ${currentUser.name}`;
+            document.getElementById('userBadge').style.display = 'inline-block';
+            document.getElementById('logoutBtn').style.display = 'block';
 
             if (currentUser.role === 'teacher') {
+                document.getElementById('teacherDashHeading').innerText = `Welcome, ${currentUser.name}`;
+                document.getElementById('teacherMyName').innerText = currentUser.name;
+                renderTeacherArchive();
                 showView('view-teacher-dash');
             } else {
+                populateTeacherFilterOptions();
                 updateStudentDashboard();
                 showView('view-student-dash');
             }
@@ -255,12 +303,14 @@
                 stopStream();
             }
             currentUser = null;
+            document.getElementById('userBadge').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
             document.getElementById('loginName').value = '';
             document.getElementById('loginPassword').value = '';
             showView('view-role-select');
         }
 
-        // --- Camera & Recording Mechanics ---
+        // Camera Setup
         async function getCameraStream(facingMode) {
             return await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: { ideal: facingMode } },
@@ -271,14 +321,10 @@
         function setupRecorder(stream) {
             try {
                 mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) {
-                        recordedChunks.push(e.data);
-                    }
-                };
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
                 mediaRecorder.start();
             } catch (err) {
-                console.warn('Recording unsupported on this browser:', err);
+                console.warn('MediaRecorder error:', err);
             }
         }
 
@@ -287,7 +333,7 @@
             const topic = document.getElementById('topicInput').value.trim();
 
             if (!subject || !topic) {
-                alert('Please enter Subject and Topic.');
+                alert('Enter Subject and Topic.');
                 return;
             }
 
@@ -297,36 +343,34 @@
                 const mediaStream = await getCameraStream(currentFacingMode);
                 
                 liveStreamState = {
+                    id: 'live-' + Date.now(),
+                    teacherId: currentUser.id,
+                    teacherName: currentUser.name,
                     subject: subject,
                     topic: topic,
-                    teacherName: currentUser.name,
-                    stream: mediaStream
+                    dateLabel: 'Today (Live)',
+                    stream: mediaStream,
+                    comments: [],
+                    doubts: []
                 };
 
                 setupRecorder(mediaStream);
 
-                const teacherVideo = document.getElementById('teacherVideo');
-                teacherVideo.srcObject = mediaStream;
-
+                document.getElementById('teacherVideo').srcObject = mediaStream;
                 document.getElementById('teacherSubjectDisplay').innerText = subject;
                 document.getElementById('teacherTopicDisplay').innerText = 'Topic: ' + topic;
-                document.getElementById('cameraTag').innerText = "🔴 BROADCASTING LIVE (BACK CAMERA)";
 
                 document.getElementById('teacher-setup-card').style.display = 'none';
                 document.getElementById('teacher-stream-card').style.display = 'block';
 
             } catch (err) {
-                alert('Camera access failed. Please allow camera permissions.');
+                alert('Camera access required to stream live.');
             }
         }
 
         async function switchCamera() {
             if (!liveStreamState || !liveStreamState.stream) return;
-
-            // Pause recorder before changing stream
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
 
             liveStreamState.stream.getTracks().forEach(track => track.stop());
             currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
@@ -334,37 +378,32 @@
             try {
                 const newStream = await getCameraStream(currentFacingMode);
                 liveStreamState.stream = newStream;
-
-                const teacherVideo = document.getElementById('teacherVideo');
-                teacherVideo.srcObject = newStream;
-
-                const studentVideo = document.getElementById('studentVideo');
-                if (studentVideo) {
-                    studentVideo.srcObject = newStream;
-                }
-
-                // Restart recording with new camera stream
+                document.getElementById('teacherVideo').srcObject = newStream;
                 setupRecorder(newStream);
-
-                const modeLabel = currentFacingMode === "environment" ? "BACK CAMERA" : "FRONT CAMERA";
-                document.getElementById('cameraTag').innerText = `🔴 BROADCASTING LIVE (${modeLabel})`;
-
             } catch (err) {
-                alert('Failed to switch camera.');
+                alert('Could not switch camera.');
             }
         }
 
+        // Save Stream to both dashboards & link to current Teacher ID
         function finalizeAndSaveRecording() {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const videoUrl = URL.createObjectURL(blob);
+            let videoUrl = '';
+            if (recordedChunks.length > 0) {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                videoUrl = URL.createObjectURL(blob);
+            }
 
+            // Save new recording into database assigned to current teacher
             savedClasses.unshift({
-                id: Date.now(),
+                id: liveStreamState.id,
+                teacherId: currentUser.id,
+                teacherName: currentUser.name,
                 subject: liveStreamState.subject,
                 topic: liveStreamState.topic,
-                teacherName: liveStreamState.teacherName,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                videoUrl: videoUrl
+                dateLabel: 'Today (' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ')',
+                videoUrl: videoUrl,
+                comments: liveStreamState.comments || [],
+                doubts: liveStreamState.doubts || []
             });
         }
 
@@ -378,6 +417,7 @@
                 };
                 mediaRecorder.stop();
             } else {
+                finalizeAndSaveRecording();
                 finishStreamCleanup();
             }
         }
@@ -391,75 +431,147 @@
             document.getElementById('teacherVideo').srcObject = null;
             document.getElementById('teacher-setup-card').style.display = 'block';
             document.getElementById('teacher-stream-card').style.display = 'none';
-            alert('Live class finished and saved to student dashboard!');
+            
+            renderTeacherArchive();
+            alert('Class stopped and saved into your dashboard AND the student dashboard!');
         }
 
-        // --- Student Dashboard & Saved Classes ---
-        function updateStudentDashboard() {
-            const noStreamCard = document.getElementById('no-stream-card');
-            const activeStreamCard = document.getElementById('active-stream-card');
+        // FILTER: Render ONLY the logged-in teacher's classes
+        function renderTeacherArchive() {
+            const container = document.getElementById('teacher-archive-list');
+            
+            // Filter strictly by the active teacher's ID
+            const myClasses = savedClasses.filter(c => c.teacherId === currentUser.id);
 
-            if (liveStreamState) {
-                noStreamCard.style.display = 'none';
-                activeStreamCard.style.display = 'block';
-
-                document.getElementById('studentBannerSubject').innerText = liveStreamState.subject;
-                document.getElementById('studentBannerTopic').innerText = 'Topic: ' + liveStreamState.topic;
-                document.getElementById('studentBannerTeacher').innerText = 'Teacher: ' + liveStreamState.teacherName;
-            } else {
-                noStreamCard.style.display = 'block';
-                activeStreamCard.style.display = 'none';
-            }
-
-            renderSavedClasses();
-        }
-
-        function renderSavedClasses() {
-            const container = document.getElementById('saved-classes-list');
-
-            if (savedClasses.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded sessions available yet.</p>';
+            if (myClasses.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes saved under ${currentUser.name} yet.</p>`;
                 return;
             }
 
-            container.innerHTML = savedClasses.map(item => `
-                <div style="background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
-                    <div class="recorded-tag">📹 RECORDED</div>
-                    <h4 style="font-size: 1.1rem; color: #f8fafc;">${item.subject}</h4>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">Topic: ${item.topic} | Teacher: ${item.teacherName} (${item.time})</p>
-                    <div class="video-wrapper" style="margin-bottom: 0;">
-                        <video controls src="${item.videoUrl}"></video>
+            container.innerHTML = myClasses.map(item => `
+                <div class="archive-card">
+                    <div class="archive-header">
+                        <div>
+                            <span class="recorded-tag">📹 SAVED</span>
+                            <h4 style="font-size: 1rem; color: #f8fafc;">${item.subject}</h4>
+                            <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} | ${item.dateLabel}</p>
+                        </div>
+                        <button class="btn btn-sm" style="background: var(--accent); color:#000;" onclick="openTeacherDoubtsModal('${item.id}')">
+                            ❓ Doubts (${item.doubts.length})
+                        </button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function joinClass() {
-            if (!liveStreamState) return;
+        // Student Dashboard Controls
+        function populateTeacherFilterOptions() {
+            const filterSelect = document.getElementById('studentTeacherFilter');
+            const teachers = [...new Set(savedClasses.map(c => c.teacherName))];
+            
+            filterSelect.innerHTML = `<option value="ALL">All Teachers</option>` + 
+                teachers.map(t => `<option value="${t}">${t}</option>`).join('');
+        }
 
+        function updateStudentDashboard() {
+            const activeStreamCard = document.getElementById('active-stream-card');
+            if (liveStreamState) {
+                activeStreamCard.style.display = 'block';
+                document.getElementById('studentBannerSubject').innerText = liveStreamState.subject;
+                document.getElementById('studentBannerTopic').innerText = 'Topic: ' + liveStreamState.topic;
+                document.getElementById('studentBannerTeacher').innerText = 'Teacher: ' + liveStreamState.teacherName;
+            } else {
+                activeStreamCard.style.display = 'none';
+            }
+            renderStudentArchive();
+        }
+
+        function renderStudentArchive() {
+            const container = document.getElementById('student-archive-list');
+            const selectedTeacherFilter = document.getElementById('studentTeacherFilter').value;
+
+            let filteredList = savedClasses;
+            if (selectedTeacherFilter !== 'ALL') {
+                filteredList = savedClasses.filter(c => c.teacherName === selectedTeacherFilter);
+            }
+
+            if (filteredList.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes found.</p>';
+                return;
+            }
+
+            container.innerHTML = filteredList.map(item => `
+                <div class="archive-card">
+                    <div class="archive-header">
+                        <div>
+                            <span class="recorded-tag">📹 ${item.teacherName}</span>
+                            <h4 style="font-size: 1rem; color: #f8fafc;">${item.subject}</h4>
+                            <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} (${item.dateLabel})</p>
+                        </div>
+                        <button class="btn btn-sm" onclick="joinClass('${item.id}', false)">▶ Watch</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function joinClass(classId, isLive) {
             const studentVideo = document.getElementById('studentVideo');
-            studentVideo.srcObject = liveStreamState.stream;
+            const videoBadge = document.getElementById('studentVideoBadge');
 
-            document.getElementById('classSubject').innerText = liveStreamState.subject;
-            document.getElementById('classTopic').innerText = 'Topic: ' + liveStreamState.topic;
+            if (isLive && liveStreamState) {
+                selectedClassForStudent = liveStreamState;
+                studentVideo.srcObject = liveStreamState.stream;
+                videoBadge.innerText = '🔴 LIVE NOW';
+            } else {
+                selectedClassForStudent = savedClasses.find(c => c.id === classId);
+                if (!selectedClassForStudent) return;
+                studentVideo.srcObject = null;
+                studentVideo.src = selectedClassForStudent.videoUrl;
+                videoBadge.innerText = '📹 RECORDED';
+            }
 
+            document.getElementById('classSubject').innerText = selectedClassForStudent.subject;
+            document.getElementById('classTopic').innerText = 'Topic: ' + selectedClassForStudent.topic;
+            document.getElementById('classTeacher').innerText = 'Teacher: ' + selectedClassForStudent.teacherName;
+
+            renderFeeds();
             showView('view-student-class');
         }
 
-        // --- Comments & Doubts ---
+        function renderFeeds() {
+            if (!selectedClassForStudent) return;
+
+            const doubtsFeed = document.getElementById('studentDoubtsFeed');
+            const doubts = selectedClassForStudent.doubts || [];
+            doubtsFeed.innerHTML = doubts.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.8rem;">No doubts asked yet.</div>' :
+                doubts.map(d => `
+                    <div class="feed-item">
+                        <div class="feed-user">❓ ${d.user}:</div>
+                        <div>${d.text}</div>
+                        ${d.isAnswered ? `
+                            <div class="answer-box">
+                                <strong>✅ Teacher Answer:</strong><br>
+                                ${d.answerText ? `<div>${d.answerText}</div>` : ''}
+                                ${d.answerAudioUrl ? `<audio controls src="${d.answerAudioUrl}" style="width:100%; height:28px; margin-top:0.3rem;"></audio>` : ''}
+                            </div>
+                        ` : '<div style="font-size:0.75rem; color:var(--accent); margin-top:0.2rem;">⏳ Awaiting Teacher Answer</div>'}
+                    </div>
+                `).join('');
+
+            const commentsFeed = document.getElementById('commentsFeed');
+            const comments = selectedClassForStudent.comments || [];
+            commentsFeed.innerHTML = comments.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.8rem;">No comments yet.</div>' :
+                comments.map(c => `<div class="feed-item"><div class="feed-user">${c.user}:</div><div>${c.text}</div></div>`).join('');
+        }
+
         function sendComment() {
             const input = document.getElementById('commentInput');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text || !selectedClassForStudent) return;
 
-            const feed = document.getElementById('commentsFeed');
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `<div class="comment-user">${currentUser.name}</div><div>${text}</div>`;
-            
-            feed.appendChild(item);
-            feed.scrollTop = feed.scrollHeight;
+            selectedClassForStudent.comments.push({ user: currentUser.name, text: text });
             input.value = '';
+            renderFeeds();
         }
 
         function openDoubtModal() { document.getElementById('doubtModal').classList.add('active'); }
@@ -467,21 +579,111 @@
 
         function submitDoubt() {
             const text = document.getElementById('doubtText').value.trim();
-            if (!text) return;
+            if (!text || !selectedClassForStudent) return;
 
-            const doubtsList = document.getElementById('teacherDoubtsList');
-            if (doubtsList.innerText.includes('No doubts asked yet')) {
-                doubtsList.innerHTML = '';
-            }
+            selectedClassForStudent.doubts.push({
+                id: 'd-' + Date.now(),
+                user: currentUser.name,
+                text: text,
+                answerText: '',
+                answerAudioUrl: null,
+                isAnswered: false
+            });
 
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `<div class="comment-user">❓ ${currentUser.name}</div><div>${text}</div>`;
-            
-            doubtsList.appendChild(item);
             document.getElementById('doubtText').value = '';
             closeDoubtModal();
-            alert('Your doubt has been sent directly to the teacher.');
+            renderFeeds();
+        }
+
+        let currentActiveDoubtClass = null;
+        function openTeacherDoubtsModal(classId) {
+            currentActiveDoubtClass = savedClasses.find(c => c.id === classId);
+            if (!currentActiveDoubtClass) return;
+
+            document.getElementById('teacherModalTitle').innerText = `Doubts for ${currentActiveDoubtClass.subject}`;
+            renderTeacherDoubtsList();
+            document.getElementById('teacherDoubtsModal').classList.add('active');
+        }
+
+        function renderTeacherDoubtsList() {
+            const container = document.getElementById('teacherDoubtsContainer');
+            const doubts = currentActiveDoubtClass.doubts;
+
+            if (doubts.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No doubts for this class.</p>';
+                return;
+            }
+
+            container.innerHTML = doubts.map(d => `
+                <div style="background: var(--input-bg); padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border);">
+                    <div class="feed-user">❓ ${d.user}:</div>
+                    <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">${d.text}</div>
+                    ${d.isAnswered ? `
+                        <div class="answer-box">
+                            ${d.answerText ? `<div>${d.answerText}</div>` : ''}
+                            ${d.answerAudioUrl ? `<audio controls src="${d.answerAudioUrl}" style="width:100%; height:28px; margin-top:0.3rem;"></audio>` : ''}
+                        </div>
+                    ` : ''}
+                    <div style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.4rem;">
+                        <input type="text" id="answerInput-${d.id}" class="form-control" style="padding:0.4rem;" placeholder="Write text answer...">
+                        <div style="display:flex; gap:0.4rem;">
+                            <button class="btn btn-sm" onclick="submitTeacherTextAnswer('${d.id}')">✍️ Answer Text</button>
+                            <button class="btn btn-secondary btn-sm" id="recBtn-${d.id}" onclick="toggleVoiceRecording('${d.id}')">🎤 Voice Answer</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function closeTeacherDoubtsModal() { document.getElementById('teacherDoubtsModal').classList.remove('active'); }
+
+        function submitTeacherTextAnswer(doubtId) {
+            const input = document.getElementById(`answerInput-${doubtId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const doubt = currentActiveDoubtClass.doubts.find(d => d.id === doubtId);
+            if (doubt) {
+                doubt.answerText = text;
+                doubt.isAnswered = true;
+                renderTeacherDoubtsList();
+                renderTeacherArchive();
+            }
+        }
+
+        async function toggleVoiceRecording(doubtId) {
+            const btn = document.getElementById(`recBtn-${doubtId}`);
+            if (recordingDoubtId === doubtId && audioRecorder && audioRecorder.state === 'recording') {
+                audioRecorder.stop();
+                btn.innerText = '🎤 Voice Answer';
+                recordingDoubtId = null;
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                audioRecorder = new MediaRecorder(stream);
+
+                audioRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                audioRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+
+                    const doubt = currentActiveDoubtClass.doubts.find(d => d.id === doubtId);
+                    if (doubt) {
+                        doubt.answerAudioUrl = audioUrl;
+                        doubt.isAnswered = true;
+                        renderTeacherDoubtsList();
+                    }
+                };
+
+                audioRecorder.start();
+                recordingDoubtId = doubtId;
+                btn.innerText = '⏹️ Save Voice';
+            } catch (err) {
+                alert('Microphone permission required.');
+            }
         }
     </script>
 </body>
