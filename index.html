@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Janedia Persistent Classroom</title>
+    <title>Junnediya English Medium School - Junnediya Live</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -24,8 +24,8 @@
         body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
 
         header { background: var(--card-bg); padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .school-title h1 { font-size: 1rem; color: #60a5fa; }
-        .school-title h2 { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+        .school-title h1 { font-size: 1.1rem; color: #60a5fa; font-weight: 700; }
+        .school-title h2 { font-size: 0.8rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .user-badge { font-size: 0.8rem; background: #334155; padding: 0.3rem 0.6rem; border-radius: 6px; color: var(--accent); }
         .btn-logout { background: #334155; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; display: none; }
 
@@ -47,7 +47,8 @@
 
         .video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .live-tag { position: absolute; top: 10px; left: 10px; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; z-index: 2; }
+        .live-tag { position: absolute; top: 10px; left: 10px; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; z-index: 2; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .recorded-tag { background: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; display: inline-block; margin-bottom: 0.5rem; }
 
         .archive-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; }
@@ -67,8 +68,8 @@
 
     <header>
         <div class="school-title">
-            <h1>Janedia Classroom</h1>
-            <h2>Junnediya English Medium School</h2>
+            <h1>Junnediya English Medium School</h1>
+            <h2>Junnediya Live</h2>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span id="userBadge" class="user-badge" style="display:none;"></span>
@@ -80,7 +81,7 @@
         <!-- 1. ROLE SELECT -->
         <div id="view-role-select" class="view active">
             <div class="card" style="text-align: center; max-width: 450px; margin: 2rem auto;">
-                <h2 style="margin-bottom: 1.5rem;">Select Account Type</h2>
+                <h2 style="margin-bottom: 1.5rem;">Select Login Type</h2>
                 <button class="btn" style="margin-bottom: 1rem;" onclick="showLogin('teacher')">👨‍🏫 Teacher Login</button>
                 <button class="btn btn-secondary" onclick="showLogin('student')">👨‍🎓 Student Login</button>
             </div>
@@ -90,16 +91,16 @@
         <div id="view-login" class="view">
             <div class="card" style="max-width: 450px; margin: 2rem auto;">
                 <h2 id="login-title" style="margin-bottom: 0.5rem;">Login</h2>
-                <p style="color: var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">First-time entries automatically register a new account.</p>
+                <p style="color: var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">Your account and password will be saved automatically.</p>
                 <div class="form-group">
-                    <label>Your Full Name / ID</label>
-                    <input type="text" id="loginName" class="form-control" placeholder="e.g. Mr. Sharma, Rahul Kumar">
+                    <label>Teacher / Student Name</label>
+                    <input type="text" id="loginName" class="form-control" placeholder="Enter Name">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter password">
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter Password">
                 </div>
-                <button class="btn" onclick="submitLogin()">Login / Register Account</button>
+                <button class="btn" onclick="submitLogin()">Login / Register</button>
                 <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="showView('view-role-select')">Back</button>
             </div>
         </div>
@@ -108,28 +109,35 @@
         <div id="view-teacher-dash" class="view">
             <div id="teacher-setup-card" class="card">
                 <h3 id="teacherDashHeading">Teacher Dashboard</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Start a live broadcast for your students.</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Select Subject and Topic to start streaming class using Back Camera.</p>
+                
                 <div class="form-group">
-                    <label>Subject</label>
-                    <input type="text" id="subjectInput" class="form-control" placeholder="e.g. Science">
+                    <label>Select Subject</label>
+                    <select id="subjectInput" class="form-control">
+                        <option value="English">English</option>
+                        <option value="Maths">Maths</option>
+                        <option value="Science">Science</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="S.S.">S.S. (Social Studies)</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Topic</label>
-                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Gravity and Motion">
+                    <label>Class Topic</label>
+                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Chapter 1: Introduction">
                 </div>
-                <button class="btn" onclick="startStream()">🎥 START LIVE STREAM</button>
+                <button class="btn" onclick="startStream()">🎥 STREAM CLASS (Back Camera)</button>
             </div>
 
-            <!-- Active Stream Card -->
+            <!-- Active Broadcast Card -->
             <div id="teacher-stream-card" class="card" style="display: none;">
                 <div class="video-wrapper">
                     <video id="teacherVideo" autoplay muted playsinline></video>
-                    <div class="live-tag">🔴 BROADCASTING LIVE</div>
+                    <div class="live-tag">🔴 CLASS IS LIVE</div>
                 </div>
 
                 <div class="btn-group">
                     <button class="btn btn-secondary btn-sm" onclick="switchCamera()">🔄 Switch Camera</button>
-                    <button class="btn btn-danger btn-sm" onclick="stopStream()">🛑 Stop & Save Stream</button>
+                    <button class="btn btn-danger btn-sm" onclick="stopStream()">🛑 Finish Class & Save Video</button>
                 </div>
 
                 <h3 id="teacherSubjectDisplay">Subject</h3>
@@ -138,8 +146,7 @@
 
             <!-- Saved Classes List -->
             <div class="card">
-                <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">📁 My Saved Classes & Doubts</h3>
-                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Recorded classes saved under your profile.</p>
+                <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">📁 Saved Classes & Doubts</h3>
                 <div id="teacher-archive-list"></div>
             </div>
         </div>
@@ -148,45 +155,45 @@
         <div id="view-student-dash" class="view">
             <div class="card">
                 <div class="form-group" style="margin-bottom: 0.5rem;">
-                    <label>Select Teacher:</label>
+                    <label>Filter by Teacher:</label>
                     <select id="studentTeacherFilter" class="form-control" onchange="updateStudentDashboard()">
                         <option value="ALL">All Teachers</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Active Live Class Banner -->
-            <div id="active-stream-card" class="card" style="display:none; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+            <!-- Active Live Class Notification Card -->
+            <div id="active-stream-card" class="card" style="display:none; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.08);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span class="live-tag" style="position:static;">🔴 LIVE NOW</span>
+                    <span class="live-tag" style="position:static;">🔴 STREAMING NOW</span>
                     <span id="studentBannerTeacher" style="font-size: 0.85rem; color: var(--accent); font-weight: bold;">Teacher: ...</span>
                 </div>
                 <h3 id="studentBannerSubject" style="font-size: 1.2rem; color: #fff;">Subject</h3>
                 <p id="studentBannerTopic" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Topic: ...</p>
-                <button class="btn btn-danger" onclick="joinClass(null, true)">▶ Join Live Stream</button>
+                <button class="btn btn-danger" onclick="joinClass(null, true)">▶ Join Live Class</button>
             </div>
 
             <div class="card">
-                <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Recorded Classes Archive</h3>
+                <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Saved Classes Archive</h3>
                 <div id="student-archive-list"></div>
             </div>
         </div>
 
-        <!-- 5. WATCH CLASS VIEW -->
+        <!-- 5. WATCH CLASS VIEW (For Students) -->
         <div id="view-student-class" class="view">
             <div class="card">
                 <button class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Back to Dashboard</button>
                 
                 <div class="video-wrapper">
                     <video id="studentVideo" autoplay controls playsinline></video>
-                    <div id="studentVideoBadge" class="live-tag">🔴 LIVE</div>
+                    <div id="studentVideoBadge" class="live-tag">🔴 CLASS IS LIVE</div>
                 </div>
 
                 <h2 id="classSubject">Subject</h2>
                 <p id="classTopic" style="color: var(--text-muted); font-size: 0.85rem;">Topic: ...</p>
                 <p id="classTeacher" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 1rem;">Teacher: ...</p>
 
-                <button class="btn btn-sm btn-secondary" style="margin-bottom: 1rem;" onclick="openDoubtModal()">❓ Ask Doubt to Teacher</button>
+                <button class="btn btn-sm btn-secondary" style="margin-bottom: 1rem;" onclick="openDoubtModal()">❓ Ask Doubt</button>
 
                 <h4>❓ Doubts & Teacher Answers</h4>
                 <div class="box-feed" id="studentDoubtsFeed"></div>
@@ -195,7 +202,7 @@
                 <div class="box-feed" id="commentsFeed"></div>
                 
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="commentInput" class="form-control" placeholder="Write a comment..." onkeypress="if(event.key==='Enter') sendComment()">
+                    <input type="text" id="commentInput" class="form-control" placeholder="Write comment..." onkeypress="if(event.key==='Enter') sendComment()">
                     <button class="btn" style="width: auto;" onclick="sendComment()">Send</button>
                 </div>
             </div>
@@ -206,7 +213,7 @@
     <div id="doubtModal" class="modal">
         <div class="modal-body">
             <h3>Ask Your Doubt</h3>
-            <textarea id="doubtText" class="form-control" rows="3" style="margin: 1rem 0;" placeholder="Type your question here..."></textarea>
+            <textarea id="doubtText" class="form-control" rows="3" style="margin: 1rem 0;" placeholder="Type your doubt or question here..."></textarea>
             <button class="btn" onclick="submitDoubt()">Submit Doubt</button>
             <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="closeDoubtModal()">Cancel</button>
         </div>
@@ -222,11 +229,10 @@
     </div>
 
     <script>
-        // Memory State
         let currentUser = null;
         let currentRoleSelection = '';
         let liveMediaStream = null;
-        let currentFacingMode = "environment";
+        let currentFacingMode = "environment"; // Starts with Back Camera
         let mediaRecorder = null;
         let recordedChunks = [];
         let selectedClassForStudent = null;
@@ -235,21 +241,20 @@
         let audioChunks = [];
         let recordingDoubtId = null;
 
-        // Persistent Collections
         let registeredUsers = [];
         let savedClasses = [];
 
         function loadStorageData() {
-            const usersData = localStorage.getItem('janedia_users');
-            const classesData = localStorage.getItem('janedia_classes');
+            const usersData = localStorage.getItem('junnediya_users');
+            const classesData = localStorage.getItem('junnediya_classes');
 
             registeredUsers = usersData ? JSON.parse(usersData) : [];
             savedClasses = classesData ? JSON.parse(classesData) : [];
         }
 
         function persistData() {
-            localStorage.setItem('janedia_users', JSON.stringify(registeredUsers));
-            localStorage.setItem('janedia_classes', JSON.stringify(savedClasses));
+            localStorage.setItem('junnediya_users', JSON.stringify(registeredUsers));
+            localStorage.setItem('junnediya_classes', JSON.stringify(savedClasses));
         }
 
         loadStorageData();
@@ -275,12 +280,11 @@
             }
 
             const userId = nameInput.toLowerCase().replace(/\s+/g, '-');
-            
             let existingUser = registeredUsers.find(u => u.id === userId && u.role === currentRoleSelection);
 
             if (existingUser) {
                 if (existingUser.password !== passwordInput) {
-                    alert('Incorrect password!');
+                    alert('Incorrect Password! Name and Password must match.');
                     return;
                 }
                 currentUser = existingUser;
@@ -290,7 +294,7 @@
                 persistData();
             }
 
-            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫' : '👨‍🎓'} ${currentUser.name}`;
+            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫 Teacher:' : '👨‍🎓 Student:'} ${currentUser.name}`;
             document.getElementById('userBadge').style.display = 'inline-block';
             document.getElementById('logoutBtn').style.display = 'block';
 
@@ -306,7 +310,7 @@
         }
 
         function logout() {
-            if (currentUser && currentUser.role === 'teacher' && localStorage.getItem('janedia_live_stream')) {
+            if (currentUser && currentUser.role === 'teacher' && localStorage.getItem('junnediya_live_stream')) {
                 stopStream();
             }
             currentUser = null;
@@ -330,21 +334,21 @@
                 mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
                 mediaRecorder.start();
             } catch (err) {
-                console.warn('Recorder failed:', err);
+                console.warn('Recorder init failed:', err);
             }
         }
 
         async function startStream() {
-            const subject = document.getElementById('subjectInput').value.trim();
+            const subject = document.getElementById('subjectInput').value;
             const topic = document.getElementById('topicInput').value.trim();
 
-            if (!subject || !topic) {
-                alert('Enter Subject and Topic.');
+            if (!topic) {
+                alert('Please enter a Class Topic.');
                 return;
             }
 
             try {
-                currentFacingMode = "environment";
+                currentFacingMode = "environment"; // Force Back Camera
                 recordedChunks = [];
                 liveMediaStream = await getCameraStream(currentFacingMode);
 
@@ -358,7 +362,7 @@
                     doubts: []
                 };
 
-                localStorage.setItem('janedia_live_stream', JSON.stringify(liveStreamData));
+                localStorage.setItem('junnediya_live_stream', JSON.stringify(liveStreamData));
                 setupRecorder(liveMediaStream);
 
                 document.getElementById('teacherVideo').srcObject = liveMediaStream;
@@ -369,7 +373,7 @@
                 document.getElementById('teacher-stream-card').style.display = 'block';
 
             } catch (err) {
-                alert('Camera access required.');
+                alert('Camera permission required to stream class.');
             }
         }
 
@@ -390,7 +394,7 @@
         }
 
         function stopStream() {
-            const liveData = JSON.parse(localStorage.getItem('janedia_live_stream') || '{}');
+            const liveData = JSON.parse(localStorage.getItem('junnediya_live_stream') || '{}');
             
             const saveClassItem = (videoDataUrl) => {
                 if (liveData.id) {
@@ -400,14 +404,14 @@
                         teacherName: currentUser.name,
                         subject: liveData.subject,
                         topic: liveData.topic,
-                        dateLabel: 'Saved ' + new Date().toLocaleDateString(),
+                        dateLabel: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                         videoUrl: videoDataUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
                         comments: liveData.comments || [],
                         doubts: liveData.doubts || []
                     });
                     persistData();
                 }
-                localStorage.removeItem('janedia_live_stream');
+                localStorage.removeItem('junnediya_live_stream');
                 finishStreamCleanup();
             };
 
@@ -435,7 +439,7 @@
             document.getElementById('teacher-stream-card').style.display = 'none';
             
             renderTeacherArchive();
-            alert('Stream ended and saved permanently!');
+            alert('Class finished! Video automatically saved to Saved Classes.');
         }
 
         function renderTeacherArchive() {
@@ -443,7 +447,7 @@
             const myClasses = savedClasses.filter(c => c.teacherId === currentUser.id);
 
             if (myClasses.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes saved yet.</p>`;
+                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No saved classes yet.</p>`;
                 return;
             }
 
@@ -456,7 +460,7 @@
                             <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} | ${item.dateLabel}</p>
                         </div>
                         <button class="btn btn-sm" style="background: var(--accent); color:#000;" onclick="openTeacherDoubtsModal('${item.id}')">
-                            ❓ Doubts (${item.doubts.length})
+                            ❓ Doubts (${item.doubts ? item.doubts.length : 0})
                         </button>
                     </div>
                 </div>
@@ -473,7 +477,7 @@
 
         function updateStudentDashboard() {
             const activeStreamCard = document.getElementById('active-stream-card');
-            const liveStreamRaw = localStorage.getItem('janedia_live_stream');
+            const liveStreamRaw = localStorage.getItem('junnediya_live_stream');
             const selectedTeacherFilter = document.getElementById('studentTeacherFilter').value;
 
             if (liveStreamRaw) {
@@ -502,7 +506,7 @@
             }
 
             if (filteredList.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes found.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No saved recorded classes found.</p>';
                 return;
             }
 
@@ -514,7 +518,7 @@
                             <h4 style="font-size: 1rem; color: #f8fafc;">${item.subject}</h4>
                             <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} (${item.dateLabel})</p>
                         </div>
-                        <button class="btn btn-sm" onclick="joinClass('${item.id}', false)">▶ Play</button>
+                        <button class="btn btn-sm" onclick="joinClass('${item.id}', false)">▶ Play Class</button>
                     </div>
                 </div>
             `).join('');
@@ -525,16 +529,16 @@
             const videoBadge = document.getElementById('studentVideoBadge');
 
             if (isLive) {
-                const liveData = JSON.parse(localStorage.getItem('janedia_live_stream') || '{}');
+                const liveData = JSON.parse(localStorage.getItem('junnediya_live_stream') || '{}');
                 selectedClassForStudent = liveData;
                 studentVideo.srcObject = liveMediaStream;
-                videoBadge.innerText = '🔴 LIVE NOW';
+                videoBadge.innerText = '🔴 CLASS IS LIVE';
             } else {
                 selectedClassForStudent = savedClasses.find(c => c.id === classId);
                 if (!selectedClassForStudent) return;
                 studentVideo.srcObject = null;
                 studentVideo.src = selectedClassForStudent.videoUrl;
-                videoBadge.innerText = '📹 RECORDED';
+                videoBadge.innerText = '📹 SAVED CLASS';
             }
 
             document.getElementById('classSubject').innerText = selectedClassForStudent.subject;
@@ -580,7 +584,7 @@
             selectedClassForStudent.comments.push({ user: currentUser.name, text: text });
             
             if (selectedClassForStudent.id.startsWith('live-')) {
-                localStorage.setItem('janedia_live_stream', JSON.stringify(selectedClassForStudent));
+                localStorage.setItem('junnediya_live_stream', JSON.stringify(selectedClassForStudent));
             } else {
                 persistData();
             }
@@ -607,7 +611,7 @@
             });
 
             if (selectedClassForStudent.id.startsWith('live-')) {
-                localStorage.setItem('janedia_live_stream', JSON.stringify(selectedClassForStudent));
+                localStorage.setItem('junnediya_live_stream', JSON.stringify(selectedClassForStudent));
             } else {
                 persistData();
             }
@@ -629,7 +633,7 @@
 
         function renderTeacherDoubtsList() {
             const container = document.getElementById('teacherDoubtsContainer');
-            const doubts = currentActiveDoubtClass.doubts;
+            const doubts = currentActiveDoubtClass.doubts || [];
 
             if (doubts.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No doubts for this class.</p>';
@@ -712,7 +716,7 @@
             }
         }
 
-        // Real-time interval poll to check for active streams across tabs
+        // Auto-refresh student dashboard every 2 seconds to capture live streams across phones/tabs
         setInterval(() => {
             if (currentUser && currentUser.role === 'student') {
                 updateStudentDashboard();
