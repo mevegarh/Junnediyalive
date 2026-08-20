@@ -77,7 +77,7 @@
     </header>
 
     <main>
-        <!-- 1. LOGIN TYPE SELECT -->
+        <!-- 1. ROLE SELECT -->
         <div id="view-role-select" class="view active">
             <div class="card" style="text-align: center; max-width: 450px; margin: 2rem auto;">
                 <h2 style="margin-bottom: 1.5rem;">Select Account Type</h2>
@@ -139,7 +139,7 @@
             <!-- Saved Classes List -->
             <div class="card">
                 <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">📁 My Saved Classes & Doubts</h3>
-                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Showing recorded classes saved specifically under your account.</p>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Recorded classes saved under your profile.</p>
                 <div id="teacher-archive-list"></div>
             </div>
         </div>
@@ -148,19 +148,22 @@
         <div id="view-student-dash" class="view">
             <div class="card">
                 <div class="form-group" style="margin-bottom: 0.5rem;">
-                    <label>Filter Saved Classes by Teacher:</label>
-                    <select id="studentTeacherFilter" class="form-control" onchange="renderStudentArchive()">
+                    <label>Select Teacher:</label>
+                    <select id="studentTeacherFilter" class="form-control" onchange="updateStudentDashboard()">
                         <option value="ALL">All Teachers</option>
                     </select>
                 </div>
             </div>
 
-            <div id="active-stream-card" class="card" style="display:none; border: 2px solid #2563eb; text-align: center;" onclick="joinClass(null, true)">
-                <span class="live-tag" style="position:static; display:inline-block; margin-bottom:0.5rem;">🔴 LIVE NOW</span>
-                <h3 id="studentBannerSubject">Science</h3>
-                <p id="studentBannerTopic" style="font-size: 0.9rem;">Topic: ...</p>
-                <p id="studentBannerTeacher" style="font-size: 0.8rem; color: var(--accent); margin-top: 0.4rem;">Teacher: ...</p>
-                <button class="btn" style="margin-top: 0.8rem;">Click to Join Live Stream</button>
+            <!-- Active Live Class Banner -->
+            <div id="active-stream-card" class="card" style="display:none; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span class="live-tag" style="position:static;">🔴 LIVE NOW</span>
+                    <span id="studentBannerTeacher" style="font-size: 0.85rem; color: var(--accent); font-weight: bold;">Teacher: ...</span>
+                </div>
+                <h3 id="studentBannerSubject" style="font-size: 1.2rem; color: #fff;">Subject</h3>
+                <p id="studentBannerTopic" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Topic: ...</p>
+                <button class="btn btn-danger" onclick="joinClass(null, true)">▶ Join Live Stream</button>
             </div>
 
             <div class="card">
@@ -219,10 +222,10 @@
     </div>
 
     <script>
-        // State Storage
+        // Memory State
         let currentUser = null;
         let currentRoleSelection = '';
-        let liveStreamState = null;
+        let liveMediaStream = null;
         let currentFacingMode = "environment";
         let mediaRecorder = null;
         let recordedChunks = [];
@@ -232,31 +235,16 @@
         let audioChunks = [];
         let recordingDoubtId = null;
 
-        // Permanent Local Storage Collections
+        // Persistent Collections
         let registeredUsers = [];
         let savedClasses = [];
 
-        // Load persisted data on initialization
         function loadStorageData() {
             const usersData = localStorage.getItem('janedia_users');
             const classesData = localStorage.getItem('janedia_classes');
 
             registeredUsers = usersData ? JSON.parse(usersData) : [];
-            savedClasses = classesData ? JSON.parse(classesData) : [
-                {
-                    id: 'c-default-1',
-                    teacherId: 'mr-sharma',
-                    teacherName: 'Mr. Sharma',
-                    subject: 'Mathematics',
-                    topic: 'Algebra Fundamentals',
-                    dateLabel: 'Yesterday',
-                    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                    comments: [],
-                    doubts: [
-                        { id: 'd-1', user: 'Rohan', text: 'What is a variable?', answerText: 'A symbol representing an unknown value.', answerAudioUrl: null, isAnswered: true }
-                    ]
-                }
-            ];
+            savedClasses = classesData ? JSON.parse(classesData) : [];
         }
 
         function persistData() {
@@ -288,23 +276,21 @@
 
             const userId = nameInput.toLowerCase().replace(/\s+/g, '-');
             
-            // Check if user already exists in persistent database
             let existingUser = registeredUsers.find(u => u.id === userId && u.role === currentRoleSelection);
 
             if (existingUser) {
                 if (existingUser.password !== passwordInput) {
-                    alert('Incorrect password! Please enter the correct password saved for this account.');
+                    alert('Incorrect password!');
                     return;
                 }
                 currentUser = existingUser;
             } else {
-                // Register new persistent account
                 currentUser = { id: userId, name: nameInput, password: passwordInput, role: currentRoleSelection };
                 registeredUsers.push(currentUser);
                 persistData();
             }
 
-            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫' : '👨‍scrollbar'} ${currentUser.name}`;
+            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫' : '👨‍🎓'} ${currentUser.name}`;
             document.getElementById('userBadge').style.display = 'inline-block';
             document.getElementById('logoutBtn').style.display = 'block';
 
@@ -320,7 +306,7 @@
         }
 
         function logout() {
-            if (liveStreamState && currentUser.role === 'teacher') {
+            if (currentUser && currentUser.role === 'teacher' && localStorage.getItem('janedia_live_stream')) {
                 stopStream();
             }
             currentUser = null;
@@ -344,7 +330,7 @@
                 mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
                 mediaRecorder.start();
             } catch (err) {
-                console.warn('Recorder init failed:', err);
+                console.warn('Recorder failed:', err);
             }
         }
 
@@ -360,23 +346,22 @@
             try {
                 currentFacingMode = "environment";
                 recordedChunks = [];
-                const mediaStream = await getCameraStream(currentFacingMode);
-                
-                liveStreamState = {
+                liveMediaStream = await getCameraStream(currentFacingMode);
+
+                const liveStreamData = {
                     id: 'live-' + Date.now(),
                     teacherId: currentUser.id,
                     teacherName: currentUser.name,
                     subject: subject,
                     topic: topic,
-                    dateLabel: 'Today (Live)',
-                    stream: mediaStream,
                     comments: [],
                     doubts: []
                 };
 
-                setupRecorder(mediaStream);
+                localStorage.setItem('janedia_live_stream', JSON.stringify(liveStreamData));
+                setupRecorder(liveMediaStream);
 
-                document.getElementById('teacherVideo').srcObject = mediaStream;
+                document.getElementById('teacherVideo').srcObject = liveMediaStream;
                 document.getElementById('teacherSubjectDisplay').innerText = subject;
                 document.getElementById('teacherTopicDisplay').innerText = 'Topic: ' + topic;
 
@@ -389,72 +374,68 @@
         }
 
         async function switchCamera() {
-            if (!liveStreamState || !liveStreamState.stream) return;
+            if (!liveMediaStream) return;
             if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
 
-            liveStreamState.stream.getTracks().forEach(track => track.stop());
+            liveMediaStream.getTracks().forEach(track => track.stop());
             currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
 
             try {
-                const newStream = await getCameraStream(currentFacingMode);
-                liveStreamState.stream = newStream;
-                document.getElementById('teacherVideo').srcObject = newStream;
-                setupRecorder(newStream);
+                liveMediaStream = await getCameraStream(currentFacingMode);
+                document.getElementById('teacherVideo').srcObject = liveMediaStream;
+                setupRecorder(liveMediaStream);
             } catch (err) {
                 alert('Could not switch camera.');
             }
         }
 
-        function finalizeAndSaveRecording() {
+        function stopStream() {
+            const liveData = JSON.parse(localStorage.getItem('janedia_live_stream') || '{}');
+            
             const saveClassItem = (videoDataUrl) => {
-                savedClasses.unshift({
-                    id: liveStreamState.id,
-                    teacherId: currentUser.id,
-                    teacherName: currentUser.name,
-                    subject: liveStreamState.subject,
-                    topic: liveStreamState.topic,
-                    dateLabel: 'Saved ' + new Date().toLocaleDateString(),
-                    videoUrl: videoDataUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                    comments: liveStreamState.comments || [],
-                    doubts: liveStreamState.doubts || []
-                });
-                persistData();
+                if (liveData.id) {
+                    savedClasses.unshift({
+                        id: liveData.id,
+                        teacherId: currentUser.id,
+                        teacherName: currentUser.name,
+                        subject: liveData.subject,
+                        topic: liveData.topic,
+                        dateLabel: 'Saved ' + new Date().toLocaleDateString(),
+                        videoUrl: videoDataUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        comments: liveData.comments || [],
+                        doubts: liveData.doubts || []
+                    });
+                    persistData();
+                }
+                localStorage.removeItem('janedia_live_stream');
                 finishStreamCleanup();
             };
 
-            if (recordedChunks.length > 0) {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = () => saveClassItem(reader.result);
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => saveClassItem(reader.result);
+                };
+                mediaRecorder.stop();
             } else {
                 saveClassItem(null);
             }
         }
 
-        function stopStream() {
-            if (!liveStreamState) return;
-
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.onstop = () => finalizeAndSaveRecording();
-                mediaRecorder.stop();
-            } else {
-                finalizeAndSaveRecording();
-            }
-        }
-
         function finishStreamCleanup() {
-            if (liveStreamState && liveStreamState.stream) {
-                liveStreamState.stream.getTracks().forEach(track => track.stop());
+            if (liveMediaStream) {
+                liveMediaStream.getTracks().forEach(track => track.stop());
+                liveMediaStream = null;
             }
-            liveStreamState = null;
 
             document.getElementById('teacherVideo').srcObject = null;
             document.getElementById('teacher-setup-card').style.display = 'block';
             document.getElementById('teacher-stream-card').style.display = 'none';
             
             renderTeacherArchive();
-            alert('Stream ended! The recorded class is saved in your dashboard and student dashboards permanently.');
+            alert('Stream ended and saved permanently!');
         }
 
         function renderTeacherArchive() {
@@ -462,7 +443,7 @@
             const myClasses = savedClasses.filter(c => c.teacherId === currentUser.id);
 
             if (myClasses.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes saved under ${currentUser.name}.</p>`;
+                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes saved yet.</p>`;
                 return;
             }
 
@@ -484,19 +465,27 @@
 
         function populateTeacherFilterOptions() {
             const filterSelect = document.getElementById('studentTeacherFilter');
-            const teachers = [...new Set(savedClasses.map(c => c.teacherName))];
+            const teachers = registeredUsers.filter(u => u.role === 'teacher');
             
             filterSelect.innerHTML = `<option value="ALL">All Teachers</option>` + 
-                teachers.map(t => `<option value="${t}">${t}</option>`).join('');
+                teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
         }
 
         function updateStudentDashboard() {
             const activeStreamCard = document.getElementById('active-stream-card');
-            if (liveStreamState) {
-                activeStreamCard.style.display = 'block';
-                document.getElementById('studentBannerSubject').innerText = liveStreamState.subject;
-                document.getElementById('studentBannerTopic').innerText = 'Topic: ' + liveStreamState.topic;
-                document.getElementById('studentBannerTeacher').innerText = 'Teacher: ' + liveStreamState.teacherName;
+            const liveStreamRaw = localStorage.getItem('janedia_live_stream');
+            const selectedTeacherFilter = document.getElementById('studentTeacherFilter').value;
+
+            if (liveStreamRaw) {
+                const liveStreamData = JSON.parse(liveStreamRaw);
+                if (selectedTeacherFilter === 'ALL' || selectedTeacherFilter === liveStreamData.teacherId) {
+                    activeStreamCard.style.display = 'block';
+                    document.getElementById('studentBannerSubject').innerText = liveStreamData.subject;
+                    document.getElementById('studentBannerTopic').innerText = 'Topic: ' + liveStreamData.topic;
+                    document.getElementById('studentBannerTeacher').innerText = 'Teacher: ' + liveStreamData.teacherName;
+                } else {
+                    activeStreamCard.style.display = 'none';
+                }
             } else {
                 activeStreamCard.style.display = 'none';
             }
@@ -509,7 +498,7 @@
 
             let filteredList = savedClasses;
             if (selectedTeacherFilter !== 'ALL') {
-                filteredList = savedClasses.filter(c => c.teacherName === selectedTeacherFilter);
+                filteredList = savedClasses.filter(c => c.teacherId === selectedTeacherFilter);
             }
 
             if (filteredList.length === 0) {
@@ -535,9 +524,10 @@
             const studentVideo = document.getElementById('studentVideo');
             const videoBadge = document.getElementById('studentVideoBadge');
 
-            if (isLive && liveStreamState) {
-                selectedClassForStudent = liveStreamState;
-                studentVideo.srcObject = liveStreamState.stream;
+            if (isLive) {
+                const liveData = JSON.parse(localStorage.getItem('janedia_live_stream') || '{}');
+                selectedClassForStudent = liveData;
+                studentVideo.srcObject = liveMediaStream;
                 videoBadge.innerText = '🔴 LIVE NOW';
             } else {
                 selectedClassForStudent = savedClasses.find(c => c.id === classId);
@@ -586,8 +576,15 @@
             const text = input.value.trim();
             if (!text || !selectedClassForStudent) return;
 
+            if (!selectedClassForStudent.comments) selectedClassForStudent.comments = [];
             selectedClassForStudent.comments.push({ user: currentUser.name, text: text });
-            persistData();
+            
+            if (selectedClassForStudent.id.startsWith('live-')) {
+                localStorage.setItem('janedia_live_stream', JSON.stringify(selectedClassForStudent));
+            } else {
+                persistData();
+            }
+
             input.value = '';
             renderFeeds();
         }
@@ -599,6 +596,7 @@
             const text = document.getElementById('doubtText').value.trim();
             if (!text || !selectedClassForStudent) return;
 
+            if (!selectedClassForStudent.doubts) selectedClassForStudent.doubts = [];
             selectedClassForStudent.doubts.push({
                 id: 'd-' + Date.now(),
                 user: currentUser.name,
@@ -608,7 +606,12 @@
                 isAnswered: false
             });
 
-            persistData();
+            if (selectedClassForStudent.id.startsWith('live-')) {
+                localStorage.setItem('janedia_live_stream', JSON.stringify(selectedClassForStudent));
+            } else {
+                persistData();
+            }
+
             document.getElementById('doubtText').value = '';
             closeDoubtModal();
             renderFeeds();
@@ -708,6 +711,13 @@
                 alert('Microphone permission required.');
             }
         }
+
+        // Real-time interval poll to check for active streams across tabs
+        setInterval(() => {
+            if (currentUser && currentUser.role === 'student') {
+                updateStudentDashboard();
+            }
+        }, 2000);
     </script>
 </body>
 </html>
