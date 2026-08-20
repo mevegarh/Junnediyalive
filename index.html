@@ -1,765 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Junnediya English Medium School - Junnediya Live</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --input-bg: #0f172a;
-            --border: #334155;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --danger: #ef4444;
-            --success: #10b981;
-            --accent: #f59e0b;
-            --radius: 12px;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
-
-        header { background: var(--card-bg); padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .school-title h1 { font-size: 1.1rem; color: #60a5fa; font-weight: 700; }
-        .school-title h2 { font-size: 0.8rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .user-badge { font-size: 0.8rem; background: #334155; padding: 0.3rem 0.6rem; border-radius: 6px; color: var(--accent); }
-        .btn-logout { background: #334155; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; display: none; }
-
-        main { flex: 1; padding: 1rem; max-width: 850px; margin: 0 auto; width: 100%; }
-        .view { display: none; }
-        .view.active { display: block; }
-
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-        .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: white; padding: 0.75rem; border-radius: 8px; font-size: 0.95rem; outline: none; }
-        
-        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
-        .btn:hover { background: var(--primary-hover); }
-        .btn-danger { background: var(--danger); }
-        .btn-secondary { background: #334155; }
-        .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.85rem; width: auto; }
-        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-
-        .video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .live-tag { position: absolute; top: 10px; left: 10px; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; z-index: 2; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .recorded-tag { background: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; display: inline-block; margin-bottom: 0.5rem; }
-
-        .archive-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; }
-        .archive-header { display: flex; justify-content: space-between; align-items: flex-start; }
-
-        .box-feed { height: 160px; overflow-y: auto; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
-        .feed-item { font-size: 0.85rem; background: rgba(255,255,255,0.04); padding: 0.6rem; border-radius: 6px; border-left: 3px solid var(--primary); }
-        .feed-user { color: #60a5fa; font-weight: bold; font-size: 0.8rem; margin-bottom: 0.2rem; }
-        .answer-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 0.5rem; border-radius: 6px; margin-top: 0.4rem; color: #a7f3d0; font-size: 0.8rem; }
-
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 1rem; z-index: 100; }
-        .modal.active { display: flex; }
-        .modal-body { background: var(--card-bg); width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); }
-        
-        .live-banner-alert { background: #ef4444; color: white; font-weight: bold; padding: 0.6rem; border-radius: 8px; text-align: center; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBridge — Live Class</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#172033}
+header{background:#111827;color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:800}.tag{font-size:12px;opacity:.75}
+.container{max-width:1050px;margin:auto;padding:20px}
+.card{background:white;border-radius:18px;padding:20px;box-shadow:0 8px 25px #0000000d;margin-bottom:18px}
+h1,h2,h3{margin-top:0}.muted{color:#6b7280}
+button{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer;background:#2563eb;color:white}
+button.secondary{background:#e5e7eb;color:#111827}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.subject{padding:18px;border:1px solid #e5e7eb;border-radius:14px;cursor:pointer}.subject:hover{border-color:#2563eb}
+input,textarea,select{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:10px;margin:7px 0 12px;font:inherit}
+#app{min-height:calc(100vh - 60px)}.hidden{display:none!important}
+.video{background:#111827;color:white;border-radius:16px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative}
+.live{position:absolute;top:14px;left:14px;background:#dc2626;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:800}
+.play{font-size:52px}.chat{max-height:250px;overflow:auto;border:1px solid #e5e7eb;border-radius:12px;padding:12px}
+.msg{padding:8px 0;border-bottom:1px solid #f0f0f0}.row{display:flex;gap:10px}.row>*{flex:1}
+.badge{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700}
+</style>
 </head>
 <body>
-
-    <header>
-        <div class="school-title">
-            <h1>Junnediya English Medium School</h1>
-            <h2>Junnediya Live</h2>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span id="userBadge" class="user-badge" style="display:none;"></span>
-            <button id="logoutBtn" class="btn-logout" onclick="logout()">Logout</button>
-        </div>
-    </header>
-
-    <main>
-        <!-- 1. ROLE SELECT -->
-        <div id="view-role-select" class="view active">
-            <div class="card" style="text-align: center; max-width: 450px; margin: 2rem auto;">
-                <h2 style="margin-bottom: 1.5rem;">Select Login Type</h2>
-                <button class="btn" style="margin-bottom: 1rem;" onclick="showLogin('teacher')">👨‍🏫 Teacher Login</button>
-                <button id="btnStudentLogin" class="btn btn-secondary" onclick="showLogin('student')">👨‍🎓 Student Login</button>
-            </div>
-        </div>
-
-        <!-- 2. LOGIN FORM -->
-        <div id="view-login" class="view">
-            <div class="card" style="max-width: 450px; margin: 2rem auto;">
-                <h2 id="login-title" style="margin-bottom: 0.5rem;">Login</h2>
-                <p style="color: var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">Your account details will be saved automatically.</p>
-                <div class="form-group">
-                    <label>Teacher / Student Name</label>
-                    <input type="text" id="loginName" class="form-control" placeholder="Enter Name">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter Password">
-                </div>
-                <button class="btn" onclick="submitLogin()">Login / Register</button>
-                <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="showView('view-role-select')">Back</button>
-            </div>
-        </div>
-
-        <!-- 3. TEACHER DASHBOARD -->
-        <div id="view-teacher-dash" class="view">
-            <div id="teacher-setup-card" class="card">
-                <h3 id="teacherDashHeading">Teacher Dashboard</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Select Subject and Topic to start streaming class using Back Camera.</p>
-                
-                <div class="form-group">
-                    <label>Select Subject</label>
-                    <select id="subjectInput" class="form-control">
-                        <option value="English">English</option>
-                        <option value="Maths">Maths</option>
-                        <option value="Science">Science</option>
-                        <option value="Hindi">Hindi</option>
-                        <option value="S.S.">S.S. (Social Studies)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Class Topic</label>
-                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Chapter 1: Introduction">
-                </div>
-                <button class="btn" onclick="startStream()">🎥 STREAM CLASS (Back Camera)</button>
-            </div>
-
-            <!-- Active Broadcast Card -->
-            <div id="teacher-stream-card" class="card" style="display: none;">
-                <div class="video-wrapper">
-                    <video id="teacherVideo" autoplay muted playsinline></video>
-                    <div class="live-tag">🔴 CLASS IS LIVE</div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-secondary btn-sm" onclick="switchCamera()">🔄 Switch Camera</button>
-                    <button class="btn btn-danger btn-sm" onclick="stopStream()">🛑 Finish Class & Save Video</button>
-                </div>
-
-                <h3 id="teacherSubjectDisplay">Subject</h3>
-                <p id="teacherTopicDisplay" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Topic: ...</p>
-            </div>
-
-            <!-- Saved Classes List -->
-            <div class="card">
-                <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">📁 Saved Classes & Doubts</h3>
-                <div id="teacher-archive-list"></div>
-            </div>
-        </div>
-
-        <!-- 4. STUDENT DASHBOARD -->
-        <div id="view-student-dash" class="view">
-            <div class="card">
-                <div class="form-group" style="margin-bottom: 0.5rem;">
-                    <label>Filter by Teacher:</label>
-                    <select id="studentTeacherFilter" class="form-control" onchange="updateStudentDashboard()">
-                        <option value="ALL">All Teachers</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Saved Classes Archive</h3>
-                <div id="student-archive-list"></div>
-            </div>
-        </div>
-
-        <!-- 5. WATCH CLASS VIEW (For Students) -->
-        <div id="view-student-class" class="view">
-            <div class="card">
-                <button id="btnBackToDash" class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Saved Classes Archive</button>
-                
-                <div class="live-banner-alert" id="liveAlertBanner" style="display:none;">
-                    🔴 LIVE STREAM IN PROGRESS
-                </div>
-
-                <div class="video-wrapper">
-                    <video id="studentVideo" autoplay controls playsinline></video>
-                    <div id="studentVideoBadge" class="live-tag">🔴 CLASS IS LIVE</div>
-                </div>
-
-                <h2 id="classSubject">Subject</h2>
-                <p id="classTopic" style="color: var(--text-muted); font-size: 0.85rem;">Topic: ...</p>
-                <p id="classTeacher" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 1rem;">Teacher: ...</p>
-
-                <button class="btn btn-sm btn-secondary" style="margin-bottom: 1rem;" onclick="openDoubtModal()">❓ Ask Doubt</button>
-
-                <h4>❓ Doubts & Teacher Answers</h4>
-                <div class="box-feed" id="studentDoubtsFeed"></div>
-
-                <h4 style="margin-top: 0.8rem;">💬 Live Comments</h4>
-                <div class="box-feed" id="commentsFeed"></div>
-                
-                <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="commentInput" class="form-control" placeholder="Write comment..." onkeypress="if(event.key==='Enter') sendComment()">
-                    <button class="btn" style="width: auto;" onclick="sendComment()">Send</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal 1: Ask Doubt -->
-    <div id="doubtModal" class="modal">
-        <div class="modal-body">
-            <h3>Ask Your Doubt</h3>
-            <textarea id="doubtText" class="form-control" rows="3" style="margin: 1rem 0;" placeholder="Type your doubt or question here..."></textarea>
-            <button class="btn" onclick="submitDoubt()">Submit Doubt</button>
-            <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="closeDoubtModal()">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Modal 2: Teacher Doubt Resolver -->
-    <div id="teacherDoubtsModal" class="modal">
-        <div class="modal-body">
-            <h3 id="teacherModalTitle">Doubts Management</h3>
-            <div id="teacherDoubtsContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; margin-top: 1rem;"></div>
-            <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="closeTeacherDoubtsModal()">Close</button>
-        </div>
-    </div>
-
-    <script>
-        let currentUser = null;
-        let currentRoleSelection = '';
-        let liveMediaStream = null;
-        let currentFacingMode = "environment"; 
-        let mediaRecorder = null;
-        let recordedChunks = [];
-        let selectedClassForStudent = null;
-
-        let audioRecorder = null;
-        let audioChunks = [];
-        let recordingDoubtId = null;
-
-        let registeredUsers = [];
-        let savedClasses = [];
-
-        function loadStorageData() {
-            const usersData = localStorage.getItem('junnediya_users');
-            const classesData = localStorage.getItem('junnediya_classes');
-
-            registeredUsers = usersData ? JSON.parse(usersData) : [];
-            savedClasses = classesData ? JSON.parse(classesData) : [];
-        }
-
-        function persistData() {
-            localStorage.setItem('junnediya_users', JSON.stringify(registeredUsers));
-            localStorage.setItem('junnediya_classes', JSON.stringify(savedClasses));
-        }
-
-        loadStorageData();
-
-        function showView(viewId) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-        }
-
-        function showLogin(role) {
-            currentRoleSelection = role;
-            document.getElementById('login-title').innerText = role === 'teacher' ? 'Teacher Login' : 'Student Login';
-            showView('view-login');
-        }
-
-        function submitLogin() {
-            const nameInput = document.getElementById('loginName').value.trim();
-            const passwordInput = document.getElementById('loginPassword').value.trim();
-
-            if (!nameInput || !passwordInput) {
-                alert('Please enter both Name and Password.');
-                return;
-            }
-
-            const userId = nameInput.toLowerCase().replace(/\s+/g, '-');
-            let existingUser = registeredUsers.find(u => u.id === userId && u.role === currentRoleSelection);
-
-            if (existingUser) {
-                if (existingUser.password !== passwordInput) {
-                    alert('Incorrect Password!');
-                    return;
-                }
-                currentUser = existingUser;
-            } else {
-                currentUser = { id: userId, name: nameInput, password: passwordInput, role: currentRoleSelection };
-                registeredUsers.push(currentUser);
-                persistData();
-            }
-
-            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫 Teacher:' : '👨‍🎓 Student:'} ${currentUser.name}`;
-            document.getElementById('userBadge').style.display = 'inline-block';
-            document.getElementById('logoutBtn').style.display = 'block';
-
-            if (currentUser.role === 'teacher') {
-                document.getElementById('teacherDashHeading').innerText = `Welcome, ${currentUser.name}`;
-                renderTeacherArchive();
-                showView('view-teacher-dash');
-            } else {
-                populateTeacherFilterOptions();
-                updateStudentDashboard();
-                showView('view-student-dash');
-            }
-        }
-
-        function logout() {
-            if (currentUser && currentUser.role === 'teacher' && localStorage.getItem('junnediya_live_stream')) {
-                stopStream();
-            }
-            currentUser = null;
-            document.getElementById('userBadge').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('loginName').value = '';
-            document.getElementById('loginPassword').value = '';
-            showView('view-role-select');
-        }
-
-        async function getCameraStream(facingMode) {
-            return await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { ideal: facingMode } },
-                audio: true
-            });
-        }
-
-        function setupRecorder(stream) {
-            try {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-                mediaRecorder.start();
-            } catch (err) {
-                console.warn('Recorder init failed:', err);
-            }
-        }
-
-        async function startStream() {
-            const subject = document.getElementById('subjectInput').value;
-            const topic = document.getElementById('topicInput').value.trim();
-
-            if (!topic) {
-                alert('Please enter a Class Topic.');
-                return;
-            }
-
-            try {
-                currentFacingMode = "environment";
-                recordedChunks = [];
-                liveMediaStream = await getCameraStream(currentFacingMode);
-
-                const liveStreamData = {
-                    id: 'live-' + Date.now(),
-                    teacherId: currentUser.id,
-                    teacherName: currentUser.name,
-                    subject: subject,
-                    topic: topic,
-                    comments: [],
-                    doubts: []
-                };
-
-                localStorage.setItem('junnediya_live_stream', JSON.stringify(liveStreamData));
-                setupRecorder(liveMediaStream);
-
-                document.getElementById('teacherVideo').srcObject = liveMediaStream;
-                document.getElementById('teacherSubjectDisplay').innerText = subject;
-                document.getElementById('teacherTopicDisplay').innerText = 'Topic: ' + topic;
-
-                document.getElementById('teacher-setup-card').style.display = 'none';
-                document.getElementById('teacher-stream-card').style.display = 'block';
-
-            } catch (err) {
-                alert('Camera permission required to stream class.');
-            }
-        }
-
-        async function switchCamera() {
-            if (!liveMediaStream) return;
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-
-            liveMediaStream.getTracks().forEach(track => track.stop());
-            currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
-
-            try {
-                liveMediaStream = await getCameraStream(currentFacingMode);
-                document.getElementById('teacherVideo').srcObject = liveMediaStream;
-                setupRecorder(liveMediaStream);
-            } catch (err) {
-                alert('Could not switch camera.');
-            }
-        }
-
-        function stopStream() {
-            const liveData = JSON.parse(localStorage.getItem('junnediya_live_stream') || '{}');
-            
-            const saveClassItem = (videoDataUrl) => {
-                if (liveData.id) {
-                    savedClasses.unshift({
-                        id: liveData.id,
-                        teacherId: currentUser.id,
-                        teacherName: currentUser.name,
-                        subject: liveData.subject,
-                        topic: liveData.topic,
-                        dateLabel: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                        videoUrl: videoDataUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                        comments: liveData.comments || [],
-                        doubts: liveData.doubts || []
-                    });
-                    persistData();
-                }
-                localStorage.removeItem('junnediya_live_stream');
-                finishStreamCleanup();
-            };
-
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = () => saveClassItem(reader.result);
-                };
-                mediaRecorder.stop();
-            } else {
-                saveClassItem(null);
-            }
-        }
-
-        function finishStreamCleanup() {
-            if (liveMediaStream) {
-                liveMediaStream.getTracks().forEach(track => track.stop());
-                liveMediaStream = null;
-            }
-
-            document.getElementById('teacherVideo').srcObject = null;
-            document.getElementById('teacher-setup-card').style.display = 'block';
-            document.getElementById('teacher-stream-card').style.display = 'none';
-            
-            renderTeacherArchive();
-            alert('Class finished! Video automatically saved to Saved Classes.');
-        }
-
-        function autoConnectStudentToLive(liveStreamData) {
-            if (!currentUser) {
-                currentUser = { id: 'guest-student', name: 'Student', role: 'student' };
-            }
-            if (currentUser.role === 'teacher') return;
-
-            selectedClassForStudent = liveStreamData;
-            
-            const studentVideo = document.getElementById('studentVideo');
-            const videoBadge = document.getElementById('studentVideoBadge');
-            
-            if (liveMediaStream) {
-                studentVideo.srcObject = liveMediaStream;
-            }
-
-            videoBadge.innerText = '🔴 CLASS IS LIVE';
-            document.getElementById('liveAlertBanner').style.display = 'block';
-            document.getElementById('classSubject').innerText = selectedClassForStudent.subject;
-            document.getElementById('classTopic').innerText = 'Topic: ' + selectedClassForStudent.topic;
-            document.getElementById('classTeacher').innerText = 'Teacher: ' + selectedClassForStudent.teacherName;
-
-            renderFeeds();
-            
-            if (!document.getElementById('view-student-class').classList.contains('active')) {
-                showView('view-student-class');
-            }
-        }
-
-        function checkLiveStreamStatus() {
-            const liveStreamRaw = localStorage.getItem('junnediya_live_stream');
-            const studentLoginBtn = document.getElementById('btnStudentLogin');
-
-            if (liveStreamRaw) {
-                const liveStreamData = JSON.parse(liveStreamRaw);
-
-                // Hide Student Login button when streaming is active
-                if (studentLoginBtn) studentLoginBtn.style.display = 'none';
-
-                // Automatically direct non-teacher users/students to the live class
-                if (!currentUser || currentUser.role === 'student') {
-                    autoConnectStudentToLive(liveStreamData);
-                }
-            } else {
-                // Show Student Login button back when no stream is live
-                if (studentLoginBtn) studentLoginBtn.style.display = 'block';
-
-                // If student was watching a live class and stream stopped
-                if (document.getElementById('view-student-class').classList.contains('active') && selectedClassForStudent && selectedClassForStudent.id.startsWith('live-')) {
-                    alert('The class live stream has ended. The video has been automatically saved!');
-                    document.getElementById('liveAlertBanner').style.display = 'none';
-                    if (currentUser && currentUser.role === 'student') {
-                        showView('view-student-dash');
-                        renderStudentArchive();
-                    } else {
-                        showView('view-role-select');
-                    }
-                }
-            }
-        }
-
-        function renderTeacherArchive() {
-            const container = document.getElementById('teacher-archive-list');
-            const myClasses = savedClasses.filter(c => c.teacherId === currentUser.id);
-
-            if (myClasses.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No saved classes yet.</p>`;
-                return;
-            }
-
-            container.innerHTML = myClasses.map(item => `
-                <div class="archive-card">
-                    <div class="archive-header">
-                        <div>
-                            <span class="recorded-tag">📹 SAVED</span>
-                            <h4 style="font-size: 1rem; color: #f8fafc;">${item.subject}</h4>
-                            <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} | ${item.dateLabel}</p>
-                        </div>
-                        <button class="btn btn-sm" style="background: var(--accent); color:#000;" onclick="openTeacherDoubtsModal('${item.id}')">
-                            ❓ Doubts (${item.doubts ? item.doubts.length : 0})
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function populateTeacherFilterOptions() {
-            const filterSelect = document.getElementById('studentTeacherFilter');
-            const teachers = registeredUsers.filter(u => u.role === 'teacher');
-            
-            filterSelect.innerHTML = `<option value="ALL">All Teachers</option>` + 
-                teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-        }
-
-        function updateStudentDashboard() {
-            renderStudentArchive();
-        }
-
-        function renderStudentArchive() {
-            const container = document.getElementById('student-archive-list');
-            const selectedTeacherFilter = document.getElementById('studentTeacherFilter').value;
-
-            let filteredList = savedClasses;
-            if (selectedTeacherFilter !== 'ALL') {
-                filteredList = savedClasses.filter(c => c.teacherId === selectedTeacherFilter);
-            }
-
-            if (filteredList.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No saved recorded classes found.</p>';
-                return;
-            }
-
-            container.innerHTML = filteredList.map(item => `
-                <div class="archive-card">
-                    <div class="archive-header">
-                        <div>
-                            <span class="recorded-tag">📹 ${item.teacherName}</span>
-                            <h4 style="font-size: 1rem; color: #f8fafc;">${item.subject}</h4>
-                            <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} (${item.dateLabel})</p>
-                        </div>
-                        <button class="btn btn-sm" onclick="joinClass('${item.id}', false)">▶ Play Class</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function joinClass(classId, isLive) {
-            const studentVideo = document.getElementById('studentVideo');
-            const videoBadge = document.getElementById('studentVideoBadge');
-
-            if (isLive) {
-                const liveData = JSON.parse(localStorage.getItem('junnediya_live_stream') || '{}');
-                selectedClassForStudent = liveData;
-                studentVideo.srcObject = liveMediaStream;
-                videoBadge.innerText = '🔴 CLASS IS LIVE';
-                document.getElementById('liveAlertBanner').style.display = 'block';
-            } else {
-                selectedClassForStudent = savedClasses.find(c => c.id === classId);
-                if (!selectedClassForStudent) return;
-                studentVideo.srcObject = null;
-                studentVideo.src = selectedClassForStudent.videoUrl;
-                videoBadge.innerText = '📹 SAVED CLASS';
-                document.getElementById('liveAlertBanner').style.display = 'none';
-            }
-
-            document.getElementById('classSubject').innerText = selectedClassForStudent.subject;
-            document.getElementById('classTopic').innerText = 'Topic: ' + selectedClassForStudent.topic;
-            document.getElementById('classTeacher').innerText = 'Teacher: ' + selectedClassForStudent.teacherName;
-
-            renderFeeds();
-            showView('view-student-class');
-        }
-
-        function renderFeeds() {
-            if (!selectedClassForStudent) return;
-
-            const doubtsFeed = document.getElementById('studentDoubtsFeed');
-            const doubts = selectedClassForStudent.doubts || [];
-            doubtsFeed.innerHTML = doubts.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.8rem;">No doubts asked yet.</div>' :
-                doubts.map(d => `
-                    <div class="feed-item">
-                        <div class="feed-user">❓ ${d.user}:</div>
-                        <div>${d.text}</div>
-                        ${d.isAnswered ? `
-                            <div class="answer-box">
-                                <strong>✅ Teacher Answer:</strong><br>
-                                ${d.answerText ? `<div>${d.answerText}</div>` : ''}
-                                ${d.answerAudioUrl ? `<audio controls src="${d.answerAudioUrl}" style="width:100%; height:28px; margin-top:0.3rem;"></audio>` : ''}
-                            </div>
-                        ` : '<div style="font-size:0.75rem; color:var(--accent); margin-top:0.2rem;">⏳ Awaiting Teacher Answer</div>'}
-                    </div>
-                `).join('');
-
-            const commentsFeed = document.getElementById('commentsFeed');
-            const comments = selectedClassForStudent.comments || [];
-            commentsFeed.innerHTML = comments.length === 0 ? '<div style="color: var(--text-muted); font-size: 0.8rem;">No comments yet.</div>' :
-                comments.map(c => `<div class="feed-item"><div class="feed-user">${c.user}:</div><div>${c.text}</div></div>`).join('');
-        }
-
-        function sendComment() {
-            const input = document.getElementById('commentInput');
-            const text = input.value.trim();
-            if (!text || !selectedClassForStudent) return;
-
-            const userName = currentUser ? currentUser.name : 'Student';
-            if (!selectedClassForStudent.comments) selectedClassForStudent.comments = [];
-            selectedClassForStudent.comments.push({ user: userName, text: text });
-            
-            if (selectedClassForStudent.id.startsWith('live-')) {
-                localStorage.setItem('junnediya_live_stream', JSON.stringify(selectedClassForStudent));
-            } else {
-                persistData();
-            }
-
-            input.value = '';
-            renderFeeds();
-        }
-
-        function openDoubtModal() { document.getElementById('doubtModal').classList.add('active'); }
-        function closeDoubtModal() { document.getElementById('doubtModal').classList.remove('active'); }
-
-        function submitDoubt() {
-            const text = document.getElementById('doubtText').value.trim();
-            if (!text || !selectedClassForStudent) return;
-
-            const userName = currentUser ? currentUser.name : 'Student';
-            if (!selectedClassForStudent.doubts) selectedClassForStudent.doubts = [];
-            selectedClassForStudent.doubts.push({
-                id: 'd-' + Date.now(),
-                user: userName,
-                text: text,
-                answerText: '',
-                answerAudioUrl: null,
-                isAnswered: false
-            });
-
-            if (selectedClassForStudent.id.startsWith('live-')) {
-                localStorage.setItem('junnediya_live_stream', JSON.stringify(selectedClassForStudent));
-            } else {
-                persistData();
-            }
-
-            document.getElementById('doubtText').value = '';
-            closeDoubtModal();
-            renderFeeds();
-        }
-
-        let currentActiveDoubtClass = null;
-        function openTeacherDoubtsModal(classId) {
-            currentActiveDoubtClass = savedClasses.find(c => c.id === classId);
-            if (!currentActiveDoubtClass) return;
-
-            document.getElementById('teacherModalTitle').innerText = `Doubts for ${currentActiveDoubtClass.subject}`;
-            renderTeacherDoubtsList();
-            document.getElementById('teacherDoubtsModal').classList.add('active');
-        }
-
-        function renderTeacherDoubtsList() {
-            const container = document.getElementById('teacherDoubtsContainer');
-            const doubts = currentActiveDoubtClass.doubts || [];
-
-            if (doubts.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No doubts for this class.</p>';
-                return;
-            }
-
-            container.innerHTML = doubts.map(d => `
-                <div style="background: var(--input-bg); padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border);">
-                    <div class="feed-user">❓ ${d.user}:</div>
-                    <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">${d.text}</div>
-                    ${d.isAnswered ? `
-                        <div class="answer-box">
-                            ${d.answerText ? `<div>${d.answerText}</div>` : ''}
-                            ${d.answerAudioUrl ? `<audio controls src="${d.answerAudioUrl}" style="width:100%; height:28px; margin-top:0.3rem;"></audio>` : ''}
-                        </div>
-                    ` : ''}
-                    <div style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.4rem;">
-                        <input type="text" id="answerInput-${d.id}" class="form-control" style="padding:0.4rem;" placeholder="Write text answer...">
-                        <div style="display:flex; gap:0.4rem;">
-                            <button class="btn btn-sm" onclick="submitTeacherTextAnswer('${d.id}')">✍️ Text Answer</button>
-                            <button class="btn btn-secondary btn-sm" id="recBtn-${d.id}" onclick="toggleVoiceRecording('${d.id}')">🎤 Voice Answer</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function closeTeacherDoubtsModal() { document.getElementById('teacherDoubtsModal').classList.remove('active'); }
-
-        function submitTeacherTextAnswer(doubtId) {
-            const input = document.getElementById(`answerInput-${doubtId}`);
-            const text = input.value.trim();
-            if (!text) return;
-
-            const doubt = currentActiveDoubtClass.doubts.find(d => d.id === doubtId);
-            if (doubt) {
-                doubt.answerText = text;
-                doubt.isAnswered = true;
-                persistData();
-                renderTeacherDoubtsList();
-                renderTeacherArchive();
-            }
-        }
-
-        async function toggleVoiceRecording(doubtId) {
-            const btn = document.getElementById(`recBtn-${doubtId}`);
-            if (recordingDoubtId === doubtId && audioRecorder && audioRecorder.state === 'recording') {
-                audioRecorder.stop();
-                btn.innerText = '🎤 Voice Answer';
-                recordingDoubtId = null;
-                return;
-            }
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioChunks = [];
-                audioRecorder = new MediaRecorder(stream);
-
-                audioRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-                audioRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.readAsDataURL(audioBlob);
-                    reader.onloadend = () => {
-                        const doubt = currentActiveDoubtClass.doubts.find(d => d.id === doubtId);
-                        if (doubt) {
-                            doubt.answerAudioUrl = reader.result;
-                            doubt.isAnswered = true;
-                            persistData();
-                            renderTeacherDoubtsList();
-                        }
-                    };
-                };
-
-                audioRecorder.start();
-                recordingDoubtId = doubtId;
-                btn.innerText = '⏹️ Save Voice Answer';
-            } catch (err) {
-                alert('Microphone permission required.');
-            }
-        }
-
-        // Automatic checking loop for live streaming status across devices
-        setInterval(checkLiveStreamStatus, 1000);
-    </script>
+<header><div class="logo">📚 StudyBridge</div><div class="tag">Learn together • Anywhere</div></header>
+<div id="app" class="container">
+
+<section id="login" class="card">
+<h1>Welcome to StudyBridge</h1>
+<p class="muted">Join your school's live classes and ask doubts in real time.</p>
+<label>Name</label><input id="name" placeholder="Enter your name">
+<label>Role</label>
+<select id="role"><option value="student">Student</option><option value="teacher">Teacher</option></select>
+<button onclick="login()">Continue →</button>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="card">
+<h2 id="welcome"></h2>
+<p class="muted">Choose a subject to enter today's class.</p>
+</div>
+<div class="grid">
+<div class="subject" onclick="openClass('Physics')"><span class="badge">LIVE</span><h3>⚛️ Physics</h3><p class="muted">Motion & Laws of Motion</p></div>
+<div class="subject" onclick="openClass('Chemistry')"><span class="badge">LIVE</span><h3>🧪 Chemistry</h3><p class="muted">Chemical Bonding</p></div>
+<div class="subject" onclick="openClass('Mathematics')"><span class="badge">LIVE</span><h3>📐 Mathematics</h3><p class="muted">Trigonometry</p></div>
+</div>
+</section>
+
+<section id="classroom" class="hidden">
+<div class="card">
+<button class="secondary" onclick="back()">← Back</button>
+<h2 id="subjectTitle"></h2>
+<p class="muted">Teacher: Your School Teacher • <span class="badge">LIVE</span></p>
+<div class="video"><div class="live">● LIVE CLASS</div><div class="play">▶</div></div>
+<p class="muted">This prototype uses a simulated video area. A real version can connect to a school-approved live video service.</p>
+</div>
+
+<div class="grid">
+<div class="card">
+<h3>💬 Ask a Doubt</h3>
+<textarea id="doubt" rows="4" placeholder="Type your question..."></textarea>
+<button onclick="sendDoubt()">Send Doubt</button>
+</div>
+<div class="card">
+<h3>📌 Class Notes</h3>
+<p class="muted">Important notes shared by the teacher will appear here.</p>
+<button class="secondary" onclick="alert('Notes saved to this demo.')">Save Notes</button>
+</div>
+</div>
+
+<div class="card">
+<h3>🗨️ Class Discussion</h3>
+<div id="chat" class="chat">
+<div class="msg"><b>Teacher:</b> Welcome everyone! Ask your doubts here.</div>
+</div>
+<br>
+<div class="row"><input id="message" placeholder="Write a message..."><button onclick="sendMessage()">Send</button></div>
+</div>
+</section>
+</div>
+
+<script>
+let user="", currentSubject="";
+function login(){
+ user=document.getElementById("name").value.trim() || "Student";
+ document.getElementById("login").classList.add("hidden");
+ document.getElementById("dashboard").classList.remove("hidden");
+ document.getElementById("welcome").textContent="Hello, "+user+" 👋";
+}
+function openClass(subject){
+ currentSubject=subject;
+ document.getElementById("dashboard").classList.add("hidden");
+ document.getElementById("classroom").classList.remove("hidden");
+ document.getElementById("subjectTitle").textContent=subject+" — Live Class";
+}
+function back(){
+ document.getElementById("classroom").classList.add("hidden");
+ document.getElementById("dashboard").classList.remove("hidden");
+}
+function addMsg(who,text){
+ const box=document.getElementById("chat");
+ box.innerHTML += `<div class="msg"><b>${who}:</b> ${escapeHtml(text)}</div>`;
+ box.scrollTop=box.scrollHeight;
+}
+function sendDoubt(){
+ const x=document.getElementById("doubt"), t=x.value.trim();
+ if(!t)return;
+ addMsg(user+" (Doubt)",t); x.value="";
+}
+function sendMessage(){
+ const x=document.getElementById("message"), t=x.value.trim();
+ if(!t)return;
+ addMsg(user,t); x.value="";
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+</script>
 </body>
 </html>
