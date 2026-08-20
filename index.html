@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <!-- 2. LOGIN FORM (Teacher or Student) -->
+        <!-- 2. LOGIN FORM -->
         <div id="view-login" class="view">
             <div class="card">
                 <h2 id="login-title" style="margin-bottom: 1rem;">Login</h2>
@@ -105,9 +105,8 @@
 
         <!-- 3. TEACHER DASHBOARD -->
         <div id="view-teacher-dash" class="view">
-            <!-- Form when class is NOT live -->
             <div id="teacher-setup-card" class="card">
-                <h3>Start a Live Class</h3>
+                <h3>Start a Live Class (Back Camera 📷)</h3>
                 <br>
                 <div class="form-group">
                     <label>Subject</label>
@@ -120,11 +119,10 @@
                 <button class="btn" onclick="startStream()">🎥 START LIVE STREAM</button>
             </div>
 
-            <!-- Active Stream Controls -->
             <div id="teacher-stream-card" class="card" style="display: none;">
                 <div class="video-wrapper">
                     <video id="teacherVideo" autoplay muted playsinline></video>
-                    <div class="live-tag">🔴 BROADCASTING LIVE</div>
+                    <div class="live-tag">🔴 BROADCASTING LIVE (BACK CAMERA)</div>
                 </div>
                 <h3 id="teacherSubjectDisplay">Physics</h3>
                 <p id="teacherTopicDisplay" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Topic: Laws of Motion</p>
@@ -195,16 +193,13 @@
     </div>
 
     <script>
-        // App State
-        let currentUser = null; // { role: 'teacher'|'student', name: '' }
+        let currentUser = null;
         let currentRoleSelection = '';
-        let liveStreamState = null; // { subject: '', topic: '', teacherName: '', stream: null }
+        let liveStreamState = null;
 
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            
-            // Toggle logout button display
             document.getElementById('logoutBtn').style.display = currentUser ? 'block' : 'none';
         }
 
@@ -243,7 +238,7 @@
             showView('view-role-select');
         }
 
-        // --- Teacher Actions ---
+        // --- Teacher Actions (Forced Back Camera) ---
         async function startStream() {
             const subject = document.getElementById('subjectInput').value.trim();
             const topic = document.getElementById('topicInput').value.trim();
@@ -254,8 +249,11 @@
             }
 
             try {
-                // Open real teacher camera
-                const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                // Configured facingMode: "environment" to open rear/back camera on phones & tablets
+                const mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: "environment" } },
+                    audio: true
+                });
                 
                 liveStreamState = {
                     subject: subject,
@@ -264,7 +262,6 @@
                     stream: mediaStream
                 };
 
-                // Display in teacher view
                 const teacherVideo = document.getElementById('teacherVideo');
                 teacherVideo.srcObject = mediaStream;
 
@@ -275,7 +272,7 @@
                 document.getElementById('teacher-stream-card').style.display = 'block';
 
             } catch (err) {
-                alert('Camera access is required to start live stream.');
+                alert('Back camera access failed or unavailable. Make sure to allow camera permissions.');
             }
         }
 
@@ -336,21 +333,14 @@
             input.value = '';
         }
 
-        function openDoubtModal() {
-            document.getElementById('doubtModal').classList.add('active');
-        }
-
-        function closeDoubtModal() {
-            document.getElementById('doubtModal').classList.remove('active');
-        }
+        function openDoubtModal() { document.getElementById('doubtModal').classList.add('active'); }
+        function closeDoubtModal() { document.getElementById('doubtModal').classList.remove('active'); }
 
         function submitDoubt() {
             const text = document.getElementById('doubtText').value.trim();
             if (!text) return;
 
             const doubtsList = document.getElementById('teacherDoubtsList');
-            
-            // Clear empty message if first doubt
             if (doubtsList.innerText.includes('No doubts asked yet')) {
                 doubtsList.innerHTML = '';
             }
@@ -360,7 +350,6 @@
             item.innerHTML = `<div class="comment-user">❓ ${currentUser.name}</div><div>${text}</div>`;
             
             doubtsList.appendChild(item);
-            
             document.getElementById('doubtText').value = '';
             closeDoubtModal();
             alert('Your doubt has been sent directly to the teacher.');
