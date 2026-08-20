@@ -43,11 +43,13 @@
         .btn:hover { background: var(--primary-hover); }
         .btn-danger { background: var(--danger); }
         .btn-secondary { background: #334155; }
+        .btn-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
 
         /* Video Player */
         .video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
         video { width: 100%; height: 100%; object-fit: cover; }
         .live-tag { position: absolute; top: 10px; left: 10px; background: var(--danger); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+        .recorded-tag { background: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.75rem; display: inline-block; margin-bottom: 0.5rem; }
 
         /* Student Live Class Card */
         .live-banner { background: linear-gradient(135deg, #1e3a8a, #2563eb); border-radius: var(--radius); padding: 1.5rem; text-align: center; cursor: pointer; border: 2px solid #60a5fa; }
@@ -106,8 +108,8 @@
         <!-- 3. TEACHER DASHBOARD -->
         <div id="view-teacher-dash" class="view">
             <div id="teacher-setup-card" class="card">
-                <h3>Start a Live Class (Back Camera 📷)</h3>
-                <br>
+                <h3>Start a Live Class</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem; margin-bottom: 1rem;">Defaults to back camera 📷 (Automatically recorded)</p>
                 <div class="form-group">
                     <label>Subject</label>
                     <input type="text" id="subjectInput" class="form-control" placeholder="e.g. Physics">
@@ -122,11 +124,16 @@
             <div id="teacher-stream-card" class="card" style="display: none;">
                 <div class="video-wrapper">
                     <video id="teacherVideo" autoplay muted playsinline></video>
-                    <div class="live-tag">🔴 BROADCASTING LIVE (BACK CAMERA)</div>
+                    <div class="live-tag" id="cameraTag">🔴 BROADCASTING LIVE (BACK CAMERA)</div>
                 </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="switchCamera()">🔄 Switch Camera</button>
+                    <button class="btn btn-danger" onclick="stopStream()">🛑 Stop & Save Class</button>
+                </div>
+
                 <h3 id="teacherSubjectDisplay">Physics</h3>
                 <p id="teacherTopicDisplay" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Topic: Laws of Motion</p>
-                <button class="btn btn-danger" onclick="stopStream()">🛑 Stop Live Stream</button>
                 
                 <div style="margin-top: 1.5rem;">
                     <h4>Incoming Student Doubts</h4>
@@ -139,18 +146,27 @@
 
         <!-- 4. STUDENT DASHBOARD -->
         <div id="view-student-dash" class="view">
+            <!-- Active Stream Section -->
             <div id="no-stream-card" class="card" style="text-align: center;">
                 <h3>No Live Class Active</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Please wait for your teacher to start the session.</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Please wait for your teacher to start a live session.</p>
             </div>
 
-            <div id="active-stream-card" class="live-banner" style="display: none;" onclick="joinClass()">
+            <div id="active-stream-card" class="live-banner" style="display: none; margin-bottom: 1rem;" onclick="joinClass()">
                 <div class="live-tag" style="position: static; display: inline-block; margin-bottom: 0.5rem;">🔴 LIVE NOW</div>
                 <h3 id="studentBannerSubject">Physics Class</h3>
                 <p id="studentBannerTopic" style="font-size: 0.9rem; opacity: 0.9;">Topic: Laws of Motion</p>
                 <p id="studentBannerTeacher" style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">Teacher: Mr. Teacher</p>
                 <br>
                 <button class="btn" style="background: white; color: var(--primary);">Click to Join Live Class</button>
+            </div>
+
+            <!-- Saved/Recorded Classes Section -->
+            <div class="card" style="margin-top: 1rem;">
+                <h3 style="margin-bottom: 1rem; color: #60a5fa;">📁 Saved Live Streams</h3>
+                <div id="saved-classes-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">No recorded sessions available yet.</p>
+                </div>
             </div>
         </div>
 
@@ -196,6 +212,12 @@
         let currentUser = null;
         let currentRoleSelection = '';
         let liveStreamState = null;
+        let currentFacingMode = "environment";
+        
+        // Recording state
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let savedClasses = []; // Array of saved live streams
 
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -238,7 +260,28 @@
             showView('view-role-select');
         }
 
-        // --- Teacher Actions (Forced Back Camera) ---
+        // --- Camera & Recording Mechanics ---
+        async function getCameraStream(facingMode) {
+            return await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: facingMode } },
+                audio: true
+            });
+        }
+
+        function setupRecorder(stream) {
+            try {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+                mediaRecorder.start();
+            } catch (err) {
+                console.warn('Recording unsupported on this browser:', err);
+            }
+        }
+
         async function startStream() {
             const subject = document.getElementById('subjectInput').value.trim();
             const topic = document.getElementById('topicInput').value.trim();
@@ -249,11 +292,9 @@
             }
 
             try {
-                // Configured facingMode: "environment" to open rear/back camera on phones & tablets
-                const mediaStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: { ideal: "environment" } },
-                    audio: true
-                });
+                currentFacingMode = "environment";
+                recordedChunks = [];
+                const mediaStream = await getCameraStream(currentFacingMode);
                 
                 liveStreamState = {
                     subject: subject,
@@ -262,21 +303,86 @@
                     stream: mediaStream
                 };
 
+                setupRecorder(mediaStream);
+
                 const teacherVideo = document.getElementById('teacherVideo');
                 teacherVideo.srcObject = mediaStream;
 
                 document.getElementById('teacherSubjectDisplay').innerText = subject;
                 document.getElementById('teacherTopicDisplay').innerText = 'Topic: ' + topic;
+                document.getElementById('cameraTag').innerText = "🔴 BROADCASTING LIVE (BACK CAMERA)";
 
                 document.getElementById('teacher-setup-card').style.display = 'none';
                 document.getElementById('teacher-stream-card').style.display = 'block';
 
             } catch (err) {
-                alert('Back camera access failed or unavailable. Make sure to allow camera permissions.');
+                alert('Camera access failed. Please allow camera permissions.');
             }
         }
 
+        async function switchCamera() {
+            if (!liveStreamState || !liveStreamState.stream) return;
+
+            // Pause recorder before changing stream
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+
+            liveStreamState.stream.getTracks().forEach(track => track.stop());
+            currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+
+            try {
+                const newStream = await getCameraStream(currentFacingMode);
+                liveStreamState.stream = newStream;
+
+                const teacherVideo = document.getElementById('teacherVideo');
+                teacherVideo.srcObject = newStream;
+
+                const studentVideo = document.getElementById('studentVideo');
+                if (studentVideo) {
+                    studentVideo.srcObject = newStream;
+                }
+
+                // Restart recording with new camera stream
+                setupRecorder(newStream);
+
+                const modeLabel = currentFacingMode === "environment" ? "BACK CAMERA" : "FRONT CAMERA";
+                document.getElementById('cameraTag').innerText = `🔴 BROADCASTING LIVE (${modeLabel})`;
+
+            } catch (err) {
+                alert('Failed to switch camera.');
+            }
+        }
+
+        function finalizeAndSaveRecording() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoUrl = URL.createObjectURL(blob);
+
+            savedClasses.unshift({
+                id: Date.now(),
+                subject: liveStreamState.subject,
+                topic: liveStreamState.topic,
+                teacherName: liveStreamState.teacherName,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                videoUrl: videoUrl
+            });
+        }
+
         function stopStream() {
+            if (!liveStreamState) return;
+
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.onstop = () => {
+                    finalizeAndSaveRecording();
+                    finishStreamCleanup();
+                };
+                mediaRecorder.stop();
+            } else {
+                finishStreamCleanup();
+            }
+        }
+
+        function finishStreamCleanup() {
             if (liveStreamState && liveStreamState.stream) {
                 liveStreamState.stream.getTracks().forEach(track => track.stop());
             }
@@ -285,9 +391,10 @@
             document.getElementById('teacherVideo').srcObject = null;
             document.getElementById('teacher-setup-card').style.display = 'block';
             document.getElementById('teacher-stream-card').style.display = 'none';
+            alert('Live class finished and saved to student dashboard!');
         }
 
-        // --- Student Actions ---
+        // --- Student Dashboard & Saved Classes ---
         function updateStudentDashboard() {
             const noStreamCard = document.getElementById('no-stream-card');
             const activeStreamCard = document.getElementById('active-stream-card');
@@ -303,6 +410,28 @@
                 noStreamCard.style.display = 'block';
                 activeStreamCard.style.display = 'none';
             }
+
+            renderSavedClasses();
+        }
+
+        function renderSavedClasses() {
+            const container = document.getElementById('saved-classes-list');
+
+            if (savedClasses.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded sessions available yet.</p>';
+                return;
+            }
+
+            container.innerHTML = savedClasses.map(item => `
+                <div style="background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
+                    <div class="recorded-tag">📹 RECORDED</div>
+                    <h4 style="font-size: 1.1rem; color: #f8fafc;">${item.subject}</h4>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">Topic: ${item.topic} | Teacher: ${item.teacherName} (${item.time})</p>
+                    <div class="video-wrapper" style="margin-bottom: 0;">
+                        <video controls src="${item.videoUrl}"></video>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function joinClass() {
