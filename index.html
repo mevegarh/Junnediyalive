@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Janedia Multi-Teacher Classroom</title>
+    <title>Janedia Persistent Classroom</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -68,7 +68,7 @@
     <header>
         <div class="school-title">
             <h1>Janedia Classroom</h1>
-            <h2 id="teacherHeaderTitle">Junnediya English Medium School</h2>
+            <h2>Junnediya English Medium School</h2>
         </div>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span id="userBadge" class="user-badge" style="display:none;"></span>
@@ -89,37 +89,38 @@
         <!-- 2. LOGIN FORM -->
         <div id="view-login" class="view">
             <div class="card" style="max-width: 450px; margin: 2rem auto;">
-                <h2 id="login-title" style="margin-bottom: 1rem;">Login</h2>
+                <h2 id="login-title" style="margin-bottom: 0.5rem;">Login</h2>
+                <p style="color: var(--text-muted); font-size:0.8rem; margin-bottom:1rem;">First-time entries automatically register a new account.</p>
                 <div class="form-group">
-                    <label>Your Name (Teacher ID)</label>
-                    <input type="text" id="loginName" class="form-control" placeholder="e.g. Mr. Sharma, Mrs. Gupta">
+                    <label>Your Full Name / ID</label>
+                    <input type="text" id="loginName" class="form-control" placeholder="e.g. Mr. Sharma, Rahul Kumar">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="loginPassword" class="form-control" placeholder="Enter password">
                 </div>
-                <button class="btn" onclick="submitLogin()">Login & Open Dashboard</button>
+                <button class="btn" onclick="submitLogin()">Login / Register Account</button>
                 <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="showView('view-role-select')">Back</button>
             </div>
         </div>
 
-        <!-- 3. ISOLATED TEACHER DASHBOARD -->
+        <!-- 3. TEACHER DASHBOARD -->
         <div id="view-teacher-dash" class="view">
             <div id="teacher-setup-card" class="card">
-                <h3 id="teacherDashHeading">Teacher Live Broadcasting</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Start a live video class for your students.</p>
+                <h3 id="teacherDashHeading">Teacher Dashboard</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Start a live broadcast for your students.</p>
                 <div class="form-group">
                     <label>Subject</label>
-                    <input type="text" id="subjectInput" class="form-control" placeholder="e.g. Mathematics">
+                    <input type="text" id="subjectInput" class="form-control" placeholder="e.g. Science">
                 </div>
                 <div class="form-group">
                     <label>Topic</label>
-                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Fractions & Decimals">
+                    <input type="text" id="topicInput" class="form-control" placeholder="e.g. Gravity and Motion">
                 </div>
                 <button class="btn" onclick="startStream()">🎥 START LIVE STREAM</button>
             </div>
 
-            <!-- Active Stream Broadcast Card -->
+            <!-- Active Stream Card -->
             <div id="teacher-stream-card" class="card" style="display: none;">
                 <div class="video-wrapper">
                     <video id="teacherVideo" autoplay muted playsinline></video>
@@ -135,19 +136,19 @@
                 <p id="teacherTopicDisplay" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Topic: ...</p>
             </div>
 
-            <!-- Teacher's Personal Saved Classes -->
+            <!-- Saved Classes List -->
             <div class="card">
                 <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">📁 My Saved Classes & Doubts</h3>
-                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Only showing classes recorded by <strong id="teacherMyName">You</strong>.</p>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">Showing recorded classes saved specifically under your account.</p>
                 <div id="teacher-archive-list"></div>
             </div>
         </div>
 
-        <!-- 4. STUDENT DASHBOARD (ALL TEACHERS) -->
+        <!-- 4. STUDENT DASHBOARD -->
         <div id="view-student-dash" class="view">
             <div class="card">
                 <div class="form-group" style="margin-bottom: 0.5rem;">
-                    <label>Filter Classes by Teacher:</label>
+                    <label>Filter Saved Classes by Teacher:</label>
                     <select id="studentTeacherFilter" class="form-control" onchange="renderStudentArchive()">
                         <option value="ALL">All Teachers</option>
                     </select>
@@ -157,18 +158,18 @@
             <div id="active-stream-card" class="card" style="display:none; border: 2px solid #2563eb; text-align: center;" onclick="joinClass(null, true)">
                 <span class="live-tag" style="position:static; display:inline-block; margin-bottom:0.5rem;">🔴 LIVE NOW</span>
                 <h3 id="studentBannerSubject">Science</h3>
-                <p id="studentBannerTopic" style="font-size: 0.9rem;">Topic: Cells</p>
+                <p id="studentBannerTopic" style="font-size: 0.9rem;">Topic: ...</p>
                 <p id="studentBannerTeacher" style="font-size: 0.8rem; color: var(--accent); margin-top: 0.4rem;">Teacher: ...</p>
                 <button class="btn" style="margin-top: 0.8rem;">Click to Join Live Stream</button>
             </div>
 
             <div class="card">
-                <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Saved Recorded Classes (All Teachers)</h3>
+                <h3 style="color: #60a5fa; margin-bottom: 1rem;">📁 Recorded Classes Archive</h3>
                 <div id="student-archive-list"></div>
             </div>
         </div>
 
-        <!-- 5. STUDENT STREAM & DOUBTS WATCH VIEW -->
+        <!-- 5. WATCH CLASS VIEW -->
         <div id="view-student-class" class="view">
             <div class="card">
                 <button class="btn btn-secondary btn-sm" style="margin-bottom: 0.75rem;" onclick="showView('view-student-dash')">← Back to Dashboard</button>
@@ -184,7 +185,7 @@
 
                 <button class="btn btn-sm btn-secondary" style="margin-bottom: 1rem;" onclick="openDoubtModal()">❓ Ask Doubt to Teacher</button>
 
-                <h4>❓ Student Doubts & Teacher Answers</h4>
+                <h4>❓ Doubts & Teacher Answers</h4>
                 <div class="box-feed" id="studentDoubtsFeed"></div>
 
                 <h4 style="margin-top: 0.8rem;">💬 Live Comments</h4>
@@ -231,33 +232,39 @@
         let audioChunks = [];
         let recordingDoubtId = null;
 
-        // Central Database of Saved Classes across ALL teachers
-        let savedClasses = [
-            {
-                id: 'c-1',
-                teacherId: 'mr-sharma',
-                teacherName: 'Mr. Sharma',
-                subject: 'Mathematics',
-                topic: 'Linear Equations',
-                dateLabel: 'Yesterday',
-                videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                comments: [],
-                doubts: [
-                    { id: 'd-1', user: 'Rohan', text: 'How do we find X when Y is 0?', answerText: 'Substitute Y=0 into the main equation and simplify.', answerAudioUrl: null, isAnswered: true }
-                ]
-            },
-            {
-                id: 'c-2',
-                teacherId: 'mrs-gupta',
-                teacherName: 'Mrs. Gupta',
-                subject: 'Science',
-                topic: 'Photosynthesis Process',
-                dateLabel: '2 Days Ago',
-                videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-                comments: [],
-                doubts: []
-            }
-        ];
+        // Permanent Local Storage Collections
+        let registeredUsers = [];
+        let savedClasses = [];
+
+        // Load persisted data on initialization
+        function loadStorageData() {
+            const usersData = localStorage.getItem('janedia_users');
+            const classesData = localStorage.getItem('janedia_classes');
+
+            registeredUsers = usersData ? JSON.parse(usersData) : [];
+            savedClasses = classesData ? JSON.parse(classesData) : [
+                {
+                    id: 'c-default-1',
+                    teacherId: 'mr-sharma',
+                    teacherName: 'Mr. Sharma',
+                    subject: 'Mathematics',
+                    topic: 'Algebra Fundamentals',
+                    dateLabel: 'Yesterday',
+                    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                    comments: [],
+                    doubts: [
+                        { id: 'd-1', user: 'Rohan', text: 'What is a variable?', answerText: 'A symbol representing an unknown value.', answerAudioUrl: null, isAnswered: true }
+                    ]
+                }
+            ];
+        }
+
+        function persistData() {
+            localStorage.setItem('janedia_users', JSON.stringify(registeredUsers));
+            localStorage.setItem('janedia_classes', JSON.stringify(savedClasses));
+        }
+
+        loadStorageData();
 
         function showView(viewId) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -271,24 +278,38 @@
         }
 
         function submitLogin() {
-            const name = document.getElementById('loginName').value.trim();
-            const pass = document.getElementById('loginPassword').value.trim();
+            const nameInput = document.getElementById('loginName').value.trim();
+            const passwordInput = document.getElementById('loginPassword').value.trim();
 
-            if (!name || !pass) {
-                alert('Please enter Name and Password.');
+            if (!nameInput || !passwordInput) {
+                alert('Please enter both Name and Password.');
                 return;
             }
 
-            const teacherId = name.toLowerCase().replace(/\s+/g, '-');
-            currentUser = { role: currentRoleSelection, name: name, id: teacherId };
+            const userId = nameInput.toLowerCase().replace(/\s+/g, '-');
+            
+            // Check if user already exists in persistent database
+            let existingUser = registeredUsers.find(u => u.id === userId && u.role === currentRoleSelection);
 
-            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫' : '👨‍🎓'} ${currentUser.name}`;
+            if (existingUser) {
+                if (existingUser.password !== passwordInput) {
+                    alert('Incorrect password! Please enter the correct password saved for this account.');
+                    return;
+                }
+                currentUser = existingUser;
+            } else {
+                // Register new persistent account
+                currentUser = { id: userId, name: nameInput, password: passwordInput, role: currentRoleSelection };
+                registeredUsers.push(currentUser);
+                persistData();
+            }
+
+            document.getElementById('userBadge').innerText = `${currentUser.role === 'teacher' ? '👨‍🏫' : '👨‍scrollbar'} ${currentUser.name}`;
             document.getElementById('userBadge').style.display = 'inline-block';
             document.getElementById('logoutBtn').style.display = 'block';
 
             if (currentUser.role === 'teacher') {
                 document.getElementById('teacherDashHeading').innerText = `Welcome, ${currentUser.name}`;
-                document.getElementById('teacherMyName').innerText = currentUser.name;
                 renderTeacherArchive();
                 showView('view-teacher-dash');
             } else {
@@ -310,7 +331,6 @@
             showView('view-role-select');
         }
 
-        // Camera Setup
         async function getCameraStream(facingMode) {
             return await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: { ideal: facingMode } },
@@ -324,7 +344,7 @@
                 mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
                 mediaRecorder.start();
             } catch (err) {
-                console.warn('MediaRecorder error:', err);
+                console.warn('Recorder init failed:', err);
             }
         }
 
@@ -364,7 +384,7 @@
                 document.getElementById('teacher-stream-card').style.display = 'block';
 
             } catch (err) {
-                alert('Camera access required to stream live.');
+                alert('Camera access required.');
             }
         }
 
@@ -385,40 +405,41 @@
             }
         }
 
-        // Save Stream to both dashboards & link to current Teacher ID
         function finalizeAndSaveRecording() {
-            let videoUrl = '';
+            const saveClassItem = (videoDataUrl) => {
+                savedClasses.unshift({
+                    id: liveStreamState.id,
+                    teacherId: currentUser.id,
+                    teacherName: currentUser.name,
+                    subject: liveStreamState.subject,
+                    topic: liveStreamState.topic,
+                    dateLabel: 'Saved ' + new Date().toLocaleDateString(),
+                    videoUrl: videoDataUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                    comments: liveStreamState.comments || [],
+                    doubts: liveStreamState.doubts || []
+                });
+                persistData();
+                finishStreamCleanup();
+            };
+
             if (recordedChunks.length > 0) {
                 const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                videoUrl = URL.createObjectURL(blob);
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => saveClassItem(reader.result);
+            } else {
+                saveClassItem(null);
             }
-
-            // Save new recording into database assigned to current teacher
-            savedClasses.unshift({
-                id: liveStreamState.id,
-                teacherId: currentUser.id,
-                teacherName: currentUser.name,
-                subject: liveStreamState.subject,
-                topic: liveStreamState.topic,
-                dateLabel: 'Today (' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ')',
-                videoUrl: videoUrl,
-                comments: liveStreamState.comments || [],
-                doubts: liveStreamState.doubts || []
-            });
         }
 
         function stopStream() {
             if (!liveStreamState) return;
 
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.onstop = () => {
-                    finalizeAndSaveRecording();
-                    finishStreamCleanup();
-                };
+                mediaRecorder.onstop = () => finalizeAndSaveRecording();
                 mediaRecorder.stop();
             } else {
                 finalizeAndSaveRecording();
-                finishStreamCleanup();
             }
         }
 
@@ -433,18 +454,15 @@
             document.getElementById('teacher-stream-card').style.display = 'none';
             
             renderTeacherArchive();
-            alert('Class stopped and saved into your dashboard AND the student dashboard!');
+            alert('Stream ended! The recorded class is saved in your dashboard and student dashboards permanently.');
         }
 
-        // FILTER: Render ONLY the logged-in teacher's classes
         function renderTeacherArchive() {
             const container = document.getElementById('teacher-archive-list');
-            
-            // Filter strictly by the active teacher's ID
             const myClasses = savedClasses.filter(c => c.teacherId === currentUser.id);
 
             if (myClasses.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes saved under ${currentUser.name} yet.</p>`;
+                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No recorded classes saved under ${currentUser.name}.</p>`;
                 return;
             }
 
@@ -464,7 +482,6 @@
             `).join('');
         }
 
-        // Student Dashboard Controls
         function populateTeacherFilterOptions() {
             const filterSelect = document.getElementById('studentTeacherFilter');
             const teachers = [...new Set(savedClasses.map(c => c.teacherName))];
@@ -508,7 +525,7 @@
                             <h4 style="font-size: 1rem; color: #f8fafc;">${item.subject}</h4>
                             <p style="color: var(--text-muted); font-size: 0.8rem;">Topic: ${item.topic} (${item.dateLabel})</p>
                         </div>
-                        <button class="btn btn-sm" onclick="joinClass('${item.id}', false)">▶ Watch</button>
+                        <button class="btn btn-sm" onclick="joinClass('${item.id}', false)">▶ Play</button>
                     </div>
                 </div>
             `).join('');
@@ -570,6 +587,7 @@
             if (!text || !selectedClassForStudent) return;
 
             selectedClassForStudent.comments.push({ user: currentUser.name, text: text });
+            persistData();
             input.value = '';
             renderFeeds();
         }
@@ -590,6 +608,7 @@
                 isAnswered: false
             });
 
+            persistData();
             document.getElementById('doubtText').value = '';
             closeDoubtModal();
             renderFeeds();
@@ -627,7 +646,7 @@
                     <div style="margin-top:0.5rem; display:flex; flex-direction:column; gap:0.4rem;">
                         <input type="text" id="answerInput-${d.id}" class="form-control" style="padding:0.4rem;" placeholder="Write text answer...">
                         <div style="display:flex; gap:0.4rem;">
-                            <button class="btn btn-sm" onclick="submitTeacherTextAnswer('${d.id}')">✍️ Answer Text</button>
+                            <button class="btn btn-sm" onclick="submitTeacherTextAnswer('${d.id}')">✍️ Text Answer</button>
                             <button class="btn btn-secondary btn-sm" id="recBtn-${d.id}" onclick="toggleVoiceRecording('${d.id}')">🎤 Voice Answer</button>
                         </div>
                     </div>
@@ -646,6 +665,7 @@
             if (doubt) {
                 doubt.answerText = text;
                 doubt.isAnswered = true;
+                persistData();
                 renderTeacherDoubtsList();
                 renderTeacherArchive();
             }
@@ -668,19 +688,22 @@
                 audioRecorder.ondataavailable = (e) => audioChunks.push(e.data);
                 audioRecorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-
-                    const doubt = currentActiveDoubtClass.doubts.find(d => d.id === doubtId);
-                    if (doubt) {
-                        doubt.answerAudioUrl = audioUrl;
-                        doubt.isAnswered = true;
-                        renderTeacherDoubtsList();
-                    }
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = () => {
+                        const doubt = currentActiveDoubtClass.doubts.find(d => d.id === doubtId);
+                        if (doubt) {
+                            doubt.answerAudioUrl = reader.result;
+                            doubt.isAnswered = true;
+                            persistData();
+                            renderTeacherDoubtsList();
+                        }
+                    };
                 };
 
                 audioRecorder.start();
                 recordingDoubtId = doubtId;
-                btn.innerText = '⏹️ Save Voice';
+                btn.innerText = '⏹️ Save Voice Answer';
             } catch (err) {
                 alert('Microphone permission required.');
             }
