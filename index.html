@@ -1,598 +1,1041 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>StudyBridge v4</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StudyBridge</title>
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
+  :root{
+    --navy:#1e3a8a; --navy-dark:#172554; --sky:#0284c7; --sky-dark:#0369a1;
+    --red:#dc2626; --red-dark:#b91c1c; --green:#16a34a; --amber:#d97706;
+    --slate-50:#f8fafc; --slate-100:#f1f5f9; --slate-200:#e2e8f0; --slate-300:#cbd5e1;
+    --slate-400:#94a3b8; --slate-500:#64748b; --slate-600:#475569; --slate-700:#334155; --slate-800:#1e293b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--slate-50);color:var(--slate-800);}
+  .hidden{display:none !important;}
+  .screen{min-height:100vh;}
+  .dark-screen{background:var(--slate-800);}
 
-body{
-    font-family:Arial,sans-serif;
-    background:#f4f7fb;
-    color:#172033;
-}
+  /* Top bar */
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--slate-200);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:8px;}
+  .logo .mark{width:28px;height:28px;border-radius:10px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .logo .name{font-weight:800;color:var(--navy);font-size:18px;font-family:Georgia,serif;}
+  .logo.lg .mark{width:44px;height:44px;font-size:22px;border-radius:14px;}
+  .logo.lg .name{font-size:26px;}
+  .back-btn{border:none;background:none;font-size:20px;color:var(--slate-600);cursor:pointer;padding:4px 8px;border-radius:8px;}
+  .back-btn:hover{background:var(--slate-100);}
+  .logout-btn{border:none;background:none;color:var(--slate-500);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+  .logout-btn:hover{color:var(--red);}
 
-header{
-    background:#111827;
-    color:white;
-    padding:18px;
-    text-align:center;
-}
+  /* Welcome */
+  .welcome-wrap{min-height:100vh;background:linear-gradient(to bottom,#eff6ff,#ffffff);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;gap:28px;}
+  .welcome-title{text-align:center;max-width:360px;}
+  .welcome-title h1{font-size:24px;font-weight:800;margin:0 0 4px;color:var(--slate-800);}
+  .welcome-title p{color:var(--slate-500);font-size:14px;margin:0;}
+  .welcome-buttons{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;width:100%;max-width:460px;}
+  .big-btn{flex:1;min-width:200px;border:2px solid transparent;border-radius:18px;color:#fff;padding:26px 20px;
+    display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:transform .2s;box-shadow:0 10px 25px -10px rgba(30,58,138,.35);}
+  .big-btn:hover{transform:translateY(-3px);}
+  .big-btn.blue{background:var(--navy);}
+  .big-btn.sky{background:var(--sky);}
+  .big-btn .icon-circle{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:24px;}
+  .big-btn .label{font-size:17px;font-weight:700;}
+  .big-btn .sub{font-size:12px;opacity:.85;}
+  .footer-note{text-align:center;font-size:12px;color:var(--slate-400);padding:0 24px 24px;}
 
-header h1{
-    font-size:25px;
-}
+  /* Bridge motif */
+  .bridge-svg{width:100%;max-width:280px;}
 
-header p{
-    margin-top:5px;
-    color:#cbd5e1;
-}
+  /* Cards / forms */
+  .center-wrap{display:flex;align-items:center;justify-content:center;padding:60px 24px;}
+  .card{background:#fff;border:1px solid var(--slate-200);border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .login-card{width:100%;max-width:380px;padding:34px;}
+  .icon-badge{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:20px;}
+  .icon-badge.blue{background:#dbeafe;color:var(--navy);}
+  .icon-badge.sky{background:#e0f2fe;color:var(--sky-dark);}
+  .form-title{font-size:20px;font-weight:800;text-align:center;margin:0 0 4px;}
+  .form-sub{font-size:13px;color:var(--slate-500);text-align:center;margin:0 0 22px;}
+  .field{margin-bottom:16px;}
+  .field label{font-size:12px;font-weight:700;color:var(--slate-500);}
+  .field input, .field select, .field textarea{width:100%;margin-top:5px;border:1px solid var(--slate-300);border-radius:12px;
+    padding:11px 13px;font-size:14px;font-family:inherit;}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 3px #bae6fd;}
+  .btn{border:none;border-radius:12px;font-weight:700;cursor:pointer;padding:12px 18px;font-size:14px;transition:background .15s,transform .15s;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn.full{width:100%;}
+  .btn.navy{background:var(--navy);color:#fff;}
+  .btn.navy:hover{background:var(--navy-dark);}
+  .btn.sky-btn{background:var(--sky);color:#fff;}
+  .btn.sky-btn:hover{background:var(--sky-dark);}
+  .btn.red-btn{background:var(--red);color:#fff;}
+  .btn.red-btn:hover{background:var(--red-dark);}
+  .btn.ghost{background:var(--slate-100);color:var(--slate-700);}
+  .error-text{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--red);margin-bottom:14px;}
+  .hint-text{font-size:11px;color:var(--slate-400);text-align:center;margin-top:16px;}
 
-.container{
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-}
+  /* Dashboard */
+  .page{max-width:720px;margin:0 auto;padding:24px 16px 48px;}
+  .greet{font-size:13px;color:var(--slate-500);margin:0;}
+  .greet-name{font-size:24px;font-weight:800;margin:2px 0 20px;}
+  .status-row{display:flex;align-items:center;justify-content:space-between;padding:18px;margin-bottom:16px;}
+  .status-label{font-size:11px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:.04em;}
+  .live-dot{width:10px;height:10px;border-radius:50%;background:var(--slate-300);}
+  .live-dot.on{background:var(--green);}
+  .live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;font-weight:800;
+    border-radius:999px;padding:4px 12px;font-size:13px;}
+  .live-badge.sm{padding:2px 9px;font-size:11px;}
+  .live-badge .pulse{position:relative;width:8px;height:8px;}
+  .live-badge .pulse::before{content:"";position:absolute;inset:0;border-radius:50%;background:#fff;opacity:.7;animation:ping 1.3s cubic-bezier(0,0,.2,1) infinite;}
+  .live-badge .pulse::after{content:"";position:absolute;inset:0;border-radius:50%;background:#fff;}
+  @keyframes ping{75%,100%{transform:scale(2.2);opacity:0;}}
 
-.card{
-    background:white;
-    padding:20px;
-    margin-bottom:18px;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,.08);
-}
+  .live-cta{width:100%;border:none;border-radius:18px;background:var(--red);color:#fff;font-weight:800;font-size:18px;
+    padding:22px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;
+    box-shadow:0 12px 24px -10px rgba(220,38,38,.4);margin-bottom:22px;transition:transform .15s;}
+  .live-cta:hover{transform:translateY(-2px);}
 
-h2{
-    margin-bottom:15px;
-}
+  .dpp-cta{width:100%;border:2px solid var(--navy);border-radius:18px;background:#fff;color:var(--navy);font-weight:800;font-size:16px;
+    padding:18px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;margin-bottom:22px;transition:background .15s;}
+  .dpp-cta:hover{background:#eff6ff;}
 
-button{
-    border:0;
-    padding:12px 18px;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:15px;
-    margin:5px;
-}
+  .section-card{padding:20px;margin-bottom:16px;}
+  .section-title{font-weight:700;color:var(--slate-700);margin:0 0 12px;font-size:15px;}
+  .empty-text{font-size:13px;color:var(--slate-400);}
+  .row-item{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--slate-200);border-radius:12px;
+    padding:12px 14px;margin-bottom:8px;}
+  .row-item .rtitle{font-weight:600;font-size:14px;margin:0;}
+  .row-item .rmeta{font-size:12px;color:var(--slate-400);margin:2px 0 0;}
+  .row-item .action{border:none;background:none;color:var(--navy);font-weight:700;font-size:13px;cursor:pointer;
+    display:flex;align-items:center;gap:5px;white-space:nowrap;}
 
-.primary{
-    background:#2563eb;
-    color:white;
-}
+  .subject-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:8px;}
+  @media(min-width:520px){.subject-grid{grid-template-columns:repeat(3,1fr);}}
+  .subject-chip{border:2px solid var(--slate-200);border-radius:14px;padding:16px 8px;font-weight:700;font-size:13px;
+    color:var(--slate-600);background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s;}
+  .subject-chip:hover{border-color:#93c5fd;}
+  .subject-chip.selected{border-color:var(--sky);background:var(--sky);color:#fff;}
+  .subject-chip.selected.navy-select{border-color:var(--navy);background:var(--navy);}
 
-.success{
-    background:#16a34a;
-    color:white;
-}
+  /* Live broadcast / viewer */
+  .live-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;color:#fff;}
+  .live-header .meta{font-size:13px;color:var(--slate-300);}
+  .live-header .stats{display:flex;gap:16px;font-size:13px;color:var(--slate-300);}
+  .video-stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;background:#000;min-height:52vh;}
+  .video-stage video{max-width:100%;max-height:100%;}
+  .stage-msg{color:var(--slate-400);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:14px;}
+  .cam-off-overlay{position:absolute;inset:0;background:var(--slate-800);display:flex;align-items:center;justify-content:center;color:var(--slate-400);font-size:13px;}
+  .controls-bar{padding:20px 16px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;}
+  .ctrl{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--slate-300);font-size:11px;border:none;background:none;cursor:pointer;}
+  .ctrl .circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--slate-700);font-size:19px;color:#fff;}
+  .ctrl .circle.off{background:var(--red);}
+  .ctrl.end .circle{width:56px;height:56px;background:var(--red);font-size:22px;}
+  .ctrl.end{color:#fca5a5;}
+  .flex-col{display:flex;flex-direction:column;}
+  .fullscreen-btn{position:absolute;bottom:16px;right:16px;background:rgba(0,0,0,.5);border:none;color:#fff;
+    border-radius:10px;padding:9px 10px;cursor:pointer;font-size:16px;}
+  .live-footer{padding:14px;text-align:center;color:#fff;}
+  .live-footer .lf-subject{font-weight:700;margin:0;}
+  .live-footer .lf-teacher{font-size:13px;color:var(--slate-400);margin:2px 0 0;}
 
-.danger{
-    background:#dc2626;
-    color:white;
-}
+  /* DPP */
+  .q-block{border:1px solid var(--slate-200);border-radius:14px;padding:16px;margin-bottom:14px;position:relative;}
+  .q-block .qnum{font-size:11px;font-weight:800;color:var(--sky-dark);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+  .q-remove{position:absolute;top:12px;right:12px;border:none;background:none;color:var(--slate-400);cursor:pointer;font-size:16px;}
+  .q-remove:hover{color:var(--red);}
+  .opt-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .opt-row input[type=radio]{width:16px;height:16px;flex-shrink:0;}
+  .opt-row input[type=text]{flex:1;}
+  .counter-pill{display:inline-block;background:var(--slate-100);color:var(--slate-600);font-size:12px;font-weight:700;
+    border-radius:999px;padding:4px 12px;margin-bottom:16px;}
+  .quiz-q{border-bottom:1px solid var(--slate-200);padding:18px 0;}
+  .quiz-q:last-child{border-bottom:none;}
+  .quiz-q .qtext{font-weight:700;font-size:14px;margin:0 0 10px;}
+  .quiz-opt{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--slate-200);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:13px;}
+  .quiz-opt:hover{border-color:var(--sky);}
+  .quiz-opt.correct{border-color:var(--green);background:#f0fdf4;}
+  .quiz-opt.incorrect{border-color:var(--red);background:#fef2f2;}
+  .score-hero{text-align:center;padding:32px 20px;}
+  .score-hero .big-num{font-size:44px;font-weight:800;color:var(--navy);}
+  .score-hero .big-num span{font-size:20px;color:var(--slate-400);font-weight:600;}
 
-.secondary{
-    background:#e5e7eb;
-    color:#111827;
-}
-
-select{
-    width:100%;
-    padding:13px;
-    border:1px solid #d1d5db;
-    border-radius:10px;
-    margin:10px 0;
-    font-size:16px;
-}
-
-video{
-    width:100%;
-    max-height:450px;
-    background:#000;
-    border-radius:12px;
-    margin-top:10px;
-}
-
-.status{
-    padding:12px;
-    background:#eef2ff;
-    border-radius:10px;
-    margin:10px 0;
-}
-
-.recording{
-    border-left:5px solid #2563eb;
-    background:#f8fafc;
-    padding:15px;
-    border-radius:10px;
-    margin-top:12px;
-}
-
-.recording h3{
-    margin-bottom:5px;
-}
-
-.recording small{
-    color:#64748b;
-}
-
-.empty{
-    text-align:center;
-    color:#64748b;
-    padding:20px;
-}
-
-.hidden{
-    display:none;
-}
-
-.role-buttons{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-.badge{
-    display:inline-block;
-    padding:5px 9px;
-    background:#dbeafe;
-    color:#1d4ed8;
-    border-radius:20px;
-    font-size:12px;
-    margin-top:5px;
-}
-
-footer{
-    text-align:center;
-    padding:20px;
-    color:#64748b;
-}
+  ::selection{background:#bfdbfe;}
 </style>
 </head>
-
 <body>
 
-<header>
-    <h1>📚 StudyBridge v4</h1>
-    <p>Live Classes • Recordings • Learning</p>
-</header>
-
-<div class="container">
-
-    <!-- ROLE SELECTION -->
-    <div class="card" id="roleCard">
-        <h2>Choose Your Role</h2>
-
-        <div class="role-buttons">
-            <button class="primary" onclick="showTeacher()">
-                👨‍🏫 Teacher
-            </button>
-
-            <button class="secondary" onclick="showStudent()">
-                👨‍🎓 Student
-            </button>
-        </div>
+<!-- ================= WELCOME ================= -->
+<div id="screen-welcome" class="screen">
+  <div class="welcome-wrap">
+    <div class="logo lg"><div class="mark">📘</div><div class="name">StudyBridge</div></div>
+    <svg class="bridge-svg" viewBox="0 0 300 60" aria-hidden="true">
+      <path d="M20,50 Q150,-10 280,50" fill="none" stroke="#bfdbfe" stroke-width="3"/>
+      <circle cx="20" cy="50" r="6" fill="#1e3a8a"/>
+      <circle cx="280" cy="50" r="6" fill="#1e3a8a"/>
+      <circle r="5" fill="#0ea5e9">
+        <animateMotion dur="2.6s" repeatCount="indefinite" path="M20,50 Q150,-10 280,50" />
+      </circle>
+    </svg>
+    <div class="welcome-title">
+      <h1>Welcome to StudyBridge</h1>
+      <p>Your school's live classroom, connected in real time.</p>
     </div>
-
-
-    <!-- TEACHER PANEL -->
-    <div class="card hidden" id="teacherPanel">
-
-        <h2>👨‍🏫 Teacher Dashboard</h2>
-
-        <label>Select Subject</label>
-
-        <select id="subject">
-            <option>English</option>
-            <option>Maths</option>
-            <option>Science</option>
-            <option>Social Science</option>
-            <option>Other Subject</option>
-        </select>
-
-        <div class="status" id="teacherStatus">
-            ⚪ Class is not live
-        </div>
-
-        <video
-            id="camera"
-            autoplay
-            muted
-            playsinline
-            class="hidden">
-        </video>
-
-        <div>
-            <button
-                class="success"
-                id="startBtn"
-                onclick="startClass()">
-                🔴 Start Live Streaming
-            </button>
-
-            <button
-                class="danger hidden"
-                id="stopBtn"
-                onclick="stopClass()">
-                ⏹️ Stop Live Streaming
-            </button>
-        </div>
-
+    <div class="welcome-buttons">
+      <button class="big-btn blue" onclick="nav('screen-teacher-login')">
+        <div class="icon-circle">🎓</div>
+        <div class="label">Teacher Login</div>
+        <div class="sub">Start or manage classes</div>
+      </button>
+      <button class="big-btn sky" onclick="nav('screen-student-login')">
+        <div class="icon-circle">🧑‍🎓</div>
+        <div class="label">Student Login</div>
+        <div class="sub">Join classes &amp; recordings</div>
+      </button>
     </div>
-
-
-    <!-- STUDENT PANEL -->
-    <div class="card hidden" id="studentPanel">
-
-        <h2>👨‍🎓 Student Dashboard</h2>
-
-        <div class="status">
-            📡 Live Classes
-        </div>
-
-        <div id="liveStatus">
-            No class is currently live.
-        </div>
-
-    </div>
-
-
-    <!-- RECORDED CLASSES -->
-    <div class="card">
-
-        <h2>🎥 Recorded Classes</h2>
-
-        <div id="recordings">
-            <div class="empty">
-                No recorded classes yet.
-            </div>
-        </div>
-
-    </div>
-
+  </div>
+  <p class="footer-note">Prototype build — demo login only. Production requires server-side authentication.</p>
 </div>
 
-<footer>
-    StudyBridge v4 © 2026
-</footer>
+<!-- ================= TEACHER LOGIN ================= -->
+<div id="screen-teacher-login" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-welcome')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="center-wrap">
+    <div class="card login-card">
+      <div class="icon-badge blue">🔒</div>
+      <p class="form-title">Teacher Login</p>
+      <p class="form-sub">Sign in to start or manage your classes.</p>
+      <form onsubmit="teacherLogin(event)">
+        <div class="field"><label>Username</label><input id="t-username" autocomplete="username" placeholder="Enter username"/></div>
+        <div class="field"><label>Password</label><input id="t-password" type="password" autocomplete="current-password" placeholder="Enter password"/></div>
+        <div id="t-login-error" class="error-text hidden">⚠ Incorrect username or password.</div>
+        <button class="btn navy full" type="submit">Log In</button>
+      </form>
+      <p class="hint-text">Demo credentials — username: JunnediyaLive · password: junnediyanightlive</p>
+    </div>
+  </div>
+</div>
 
+<!-- ================= TEACHER DASHBOARD ================= -->
+<div id="screen-teacher-dashboard" class="screen hidden">
+  <div class="topbar"><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div>
+    <button class="logout-btn" onclick="logout()">⎋ Log out</button></div>
+  <div class="page">
+    <p class="greet">Welcome back,</p>
+    <p class="greet-name" id="teacher-name-display">Junnediya Live</p>
+
+    <div class="card status-row">
+      <div>
+        <div class="status-label">Class status</div>
+        <div id="teacher-status-content" style="margin-top:4px;font-size:14px;color:var(--slate-600);">No class in progress</div>
+      </div>
+      <div id="teacher-status-dot" class="live-dot"></div>
+    </div>
+
+    <button class="live-cta" id="teacher-live-cta" onclick="teacherLiveCta()">🔴 TAKE LIVE CLASS NOW</button>
+
+    <button class="dpp-cta" onclick="openTeacherDppList()">📝 Daily Practice Papers (DPP)</button>
+
+    <div class="card section-card">
+      <p class="section-title">Recorded Classes</p>
+      <div id="teacher-recordings-list"><p class="empty-text">No recordings yet. They'll appear here after your first live class.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= TEACHER LIVE SETUP ================= -->
+<div id="screen-teacher-live-setup" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-teacher-dashboard')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page" style="max-width:460px;">
+    <h2 style="margin:12px 0 2px;font-size:20px;font-weight:800;">Start a Live Class</h2>
+    <p style="color:var(--slate-500);font-size:13px;margin:0 0 20px;">Choose the subject you'll be teaching.</p>
+    <div class="subject-grid" id="live-subject-grid"></div>
+    <button class="btn red-btn full" style="margin-top:14px;padding:14px;font-size:15px;" onclick="startTeacherBroadcast()">🎥 Continue to Camera</button>
+  </div>
+</div>
+
+<!-- ================= TEACHER BROADCAST ================= -->
+<div id="screen-teacher-broadcast" class="screen dark-screen hidden" style="display:flex;flex-direction:column;">
+  <div class="live-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="live-badge"><span class="pulse"></span>LIVE</span>
+      <span class="meta" id="tb-subject-teacher"></span>
+    </div>
+    <div class="stats">
+      <span id="tb-timer">🕐 00:00</span>
+      <span id="tb-count">👥 0</span>
+    </div>
+  </div>
+  <div class="video-stage" id="tb-stage">
+    <div class="stage-msg" id="tb-loading">⏳ Requesting camera &amp; microphone…</div>
+    <video id="tb-video" autoplay playsinline muted class="hidden"></video>
+    <div id="tb-cam-off" class="cam-off-overlay hidden">Camera off</div>
+  </div>
+  <div id="tb-perm-error" class="hidden" style="padding:24px;text-align:center;color:#fca5a5;font-size:14px;"></div>
+  <div class="controls-bar">
+    <button class="ctrl" id="tb-mic-btn" onclick="toggleMic()"><div class="circle" id="tb-mic-circle">🎤</div>Mic</button>
+    <button class="ctrl" id="tb-cam-btn" onclick="toggleCam()"><div class="circle" id="tb-cam-circle">🎥</div>Camera</button>
+    <button class="ctrl" onclick="switchCamera()"><div class="circle">🔄</div>Flip</button>
+    <button class="ctrl end" onclick="endClass()"><div class="circle">📴</div>End Class</button>
+  </div>
+</div>
+
+<!-- ================= TEACHER DPP LIST ================= -->
+<div id="screen-teacher-dpp-list" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-teacher-dashboard')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 18px;">
+      <h2 style="margin:0;font-size:20px;font-weight:800;">Daily Practice Papers</h2>
+      <button class="btn navy" onclick="nav('screen-teacher-dpp-create')">+ Create DPP</button>
+    </div>
+    <div id="teacher-dpp-list"><p class="empty-text">No DPPs created yet.</p></div>
+  </div>
+</div>
+
+<!-- ================= TEACHER DPP CREATE ================= -->
+<div id="screen-teacher-dpp-create" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-teacher-dpp-list')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page" style="max-width:600px;">
+    <h2 style="margin:12px 0 18px;font-size:20px;font-weight:800;">Create Daily Practice Paper</h2>
+    <div class="field"><label>Subject</label>
+      <select id="dpp-subject"></select>
+    </div>
+    <div class="field"><label>Title</label>
+      <input id="dpp-title" placeholder="e.g. Algebra Practice — Set 1" />
+    </div>
+    <span class="counter-pill" id="dpp-counter">0 / 30 questions</span>
+    <div id="dpp-questions"></div>
+    <button class="btn ghost full" style="margin-bottom:18px;" onclick="addDppQuestion()">+ Add MCQ Question</button>
+    <div id="dpp-save-error" class="error-text hidden">⚠ Add a title and at least 1 complete question with an option marked correct.</div>
+    <button class="btn navy full" style="padding:14px;font-size:15px;" onclick="saveDpp()">Save Daily Practice Paper</button>
+  </div>
+</div>
+
+<!-- ================= STUDENT LOGIN ================= -->
+<div id="screen-student-login" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-welcome')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="center-wrap">
+    <div class="card login-card">
+      <div class="icon-badge sky">🧑</div>
+      <p class="form-title">Student Login</p>
+      <p class="form-sub">Enter your name to join your classroom.</p>
+      <form onsubmit="studentLogin(event)">
+        <div class="field"><label>Your Name</label><input id="s-name" autocomplete="name" placeholder="e.g. Aisha Khan"/></div>
+        <button class="btn sky-btn full" type="submit">Continue</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= STUDENT DASHBOARD ================= -->
+<div id="screen-student-dashboard" class="screen hidden">
+  <div class="topbar"><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div>
+    <button class="logout-btn" onclick="logout()">⎋ Log out</button></div>
+  <div class="page">
+    <p class="greet">Hi,</p>
+    <p class="greet-name" id="student-name-display">Student</p>
+
+    <div id="student-live-banner" class="card hidden" style="padding:20px;margin-bottom:16px;background:#fef2f2;border-color:#fecaca;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <span class="live-badge"><span class="pulse"></span>LIVE</span>
+        <p id="student-live-meta" style="font-size:14px;margin:8px 0 0;font-weight:600;"></p>
+      </div>
+      <button class="btn red-btn" onclick="joinLiveClass()">JOIN LIVE CLASS</button>
+    </div>
+
+    <p class="section-title" style="margin-top:4px;">Subjects</p>
+    <div class="subject-grid" id="student-subject-grid" style="margin-bottom:20px;"></div>
+
+    <button class="dpp-cta" onclick="openStudentDppList()">📝 Daily Practice Papers (DPP)</button>
+
+    <div class="card section-card">
+      <p class="section-title" id="student-rec-title">Recorded Classes</p>
+      <div id="student-recordings-list"><p class="empty-text">No recordings available yet.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= STUDENT LIVE VIEWER ================= -->
+<div id="screen-student-live" class="screen dark-screen hidden" style="display:flex;flex-direction:column;">
+  <div class="live-header">
+    <button class="back-btn" style="color:#cbd5e1;" onclick="leaveLiveAndGoBack()">← Back</button>
+    <span class="live-badge"><span class="pulse"></span>LIVE</span>
+    <span id="sl-timer" style="font-size:13px;color:#cbd5e1;">🕐 00:00</span>
+  </div>
+  <div class="video-stage" id="sl-stage">
+    <div class="stage-msg" id="sl-loading">⏳ Connecting…</div>
+    <video id="sl-video" autoplay playsinline class="hidden"></video>
+    <button class="fullscreen-btn hidden" id="sl-fullscreen" onclick="goFullscreen()">⛶</button>
+  </div>
+  <div class="live-footer">
+    <p class="lf-subject" id="sl-subject"></p>
+    <p class="lf-teacher" id="sl-teacher"></p>
+  </div>
+</div>
+
+<!-- ================= STUDENT DPP LIST ================= -->
+<div id="screen-student-dpp-list" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-student-dashboard')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page">
+    <h2 style="margin:12px 0 18px;font-size:20px;font-weight:800;">Daily Practice Papers</h2>
+    <div id="student-dpp-list"><p class="empty-text">No DPPs available yet.</p></div>
+  </div>
+</div>
+
+<!-- ================= STUDENT DPP ATTEMPT ================= -->
+<div id="screen-student-dpp-attempt" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-student-dpp-list')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page" style="max-width:600px;">
+    <h2 id="attempt-title" style="margin:12px 0 4px;font-size:19px;font-weight:800;"></h2>
+    <p id="attempt-meta" style="color:var(--slate-500);font-size:13px;margin:0 0 18px;"></p>
+    <div id="attempt-questions"></div>
+    <button class="btn navy full" style="padding:14px;font-size:15px;margin-top:10px;" onclick="submitDppAttempt()">Submit Answers</button>
+  </div>
+</div>
+
+<!-- ================= STUDENT DPP RESULT ================= -->
+<div id="screen-student-dpp-result" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-student-dpp-list')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page" style="max-width:600px;">
+    <div class="card score-hero">
+      <p style="color:var(--slate-500);font-size:13px;margin:0 0 6px;">Your Score</p>
+      <div class="big-num" id="result-score">0<span id="result-total">/0</span></div>
+    </div>
+    <div id="result-questions" style="margin-top:20px;"></div>
+    <button class="btn ghost full" style="margin-top:10px;" onclick="nav('screen-student-dpp-list')">Back to DPP List</button>
+  </div>
+</div>
+
+<!-- ================= RECORDING WATCH ================= -->
+<div id="screen-recording-watch" class="screen dark-screen hidden">
+  <div class="live-header"><button class="back-btn" style="color:#cbd5e1;" onclick="goBackFromRecording()">← Back</button><div></div></div>
+  <div class="video-stage" style="min-height:50vh;">
+    <video id="rec-video" controls class="hidden"></video>
+    <div id="rec-unavailable" class="stage-msg hidden" style="max-width:340px;text-align:center;padding:0 20px;">
+      ⚠ This recording's video isn't available in this browser session. In production, recordings are uploaded to cloud storage so any device can play them back — this prototype only keeps the video in the teacher's browser memory for the session that created it.
+    </div>
+  </div>
+  <div class="live-footer" style="text-align:left;padding:16px 20px;">
+    <p class="lf-subject" id="rec-subject"></p>
+    <p class="lf-teacher" id="rec-teacher"></p>
+  </div>
+</div>
 
 <script>
+/* ================================================================
+   StudyBridge — vanilla HTML/CSS/JS prototype
+   Real WebRTC camera/mic streaming. Signaling runs over the shared
+   window.storage key-value API (polling) since this sandbox can't
+   host a WebSocket server. See chat notes for production swap-ins.
+   ================================================================ */
 
-let mediaStream = null;
+const SUBJECTS = ["English","Mathematics","Science","Social Science","Other"];
+const TEACHER_NAME = "Junnediya Live";
+const DEMO_USERNAME = "JunnediyaLive";
+const DEMO_PASSWORD = "junnediyanightlive";
+const RTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+const MAX_DPP_QUESTIONS = 30;
+
+const genId = () => Math.random().toString(36).slice(2, 10);
+
+async function sGet(key){
+  try{ const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; }
+  catch{ return null; }
+}
+async function sSet(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), true); } catch{}
+}
+
+/* ---------------- global state ---------------- */
+let currentUser = null;          // {role, name, id}
+let liveStatus = null;
+let recordings = [];
+let dpps = [];
+let params = {};                 // per-navigation params
+let liveSubjectChoice = SUBJECTS[0];
+
+/* teacher broadcast state */
+let localStream = null;
+let peers = {};                  // studentId -> RTCPeerConnection
+let knownStudents = new Set();
 let mediaRecorder = null;
 let recordedChunks = [];
+let broadcastStartTime = null;
+let broadcastTimerInterval = null;
+let joinPollInterval = null;
+let micOn = true, camOn = true, facingMode = "user";
 
-let recordings = JSON.parse(
-    localStorage.getItem("studybridgeRecordings") || "[]"
-);
+/* student live state */
+let studentPc = null;
+let studentId = null;
+let studentSignalPoll = null;
+let studentLiveTimer = null;
+let studentLiveStatus = "connecting";
 
+/* dpp create state */
+let draftQuestions = []; // {id, text, options:[4], correct:0}
 
-/* =========================
-   ROLE FUNCTIONS
-========================= */
-
-function showTeacher(){
-
-    document.getElementById("teacherPanel")
-        .classList.remove("hidden");
-
-    document.getElementById("studentPanel")
-        .classList.add("hidden");
+/* ---------------- navigation ---------------- */
+function nav(screenId, p = {}){
+  params = p;
+  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+  document.getElementById(screenId).classList.remove("hidden");
+  window.scrollTo(0,0);
+  if(screenId === "screen-teacher-dashboard") renderTeacherDashboard();
+  if(screenId === "screen-teacher-live-setup") renderLiveSubjectGrid();
+  if(screenId === "screen-teacher-dpp-list") renderTeacherDppList();
+  if(screenId === "screen-teacher-dpp-create") initDppCreate();
+  if(screenId === "screen-student-dashboard") renderStudentDashboard();
+  if(screenId === "screen-student-dpp-list") renderStudentDppList();
+  if(screenId === "screen-recording-watch") renderRecordingWatch();
 }
 
-
-function showStudent(){
-
-    document.getElementById("studentPanel")
-        .classList.remove("hidden");
-
-    document.getElementById("teacherPanel")
-        .classList.add("hidden");
-
-    updateLiveStatus();
+/* ---------------- auth ---------------- */
+function teacherLogin(e){
+  e.preventDefault();
+  const u = document.getElementById("t-username").value;
+  const p = document.getElementById("t-password").value;
+  const err = document.getElementById("t-login-error");
+  if(u === DEMO_USERNAME && p === DEMO_PASSWORD){
+    err.classList.add("hidden");
+    currentUser = { role:"teacher", name: TEACHER_NAME };
+    nav("screen-teacher-dashboard");
+  } else {
+    err.classList.remove("hidden");
+  }
+}
+function studentLogin(e){
+  e.preventDefault();
+  const name = document.getElementById("s-name").value.trim();
+  if(!name) return;
+  currentUser = { role:"student", name, id: genId() };
+  nav("screen-student-dashboard");
+}
+async function logout(){
+  if(currentUser?.role === "student"){
+    const reqs = (await sGet("join-requests")) || {};
+    delete reqs[currentUser.id];
+    await sSet("join-requests", reqs);
+  }
+  currentUser = null;
+  nav("screen-welcome");
 }
 
+/* ---------------- background polling ---------------- */
+async function pollGlobal(){
+  liveStatus = await sGet("live-status");
+  recordings = (await sGet("recordings")) || [];
+  dpps = (await sGet("dpps")) || [];
+  const visible = document.querySelector(".screen:not(.hidden)")?.id;
+  if(visible === "screen-teacher-dashboard") renderTeacherDashboard();
+  if(visible === "screen-student-dashboard") renderStudentDashboard();
+}
+setInterval(pollGlobal, 3000);
+pollGlobal();
 
-/* =========================
-   START LIVE CLASS
-========================= */
+/* ================= TEACHER DASHBOARD ================= */
+function renderTeacherDashboard(){
+  document.getElementById("teacher-name-display").textContent = currentUser?.name || TEACHER_NAME;
+  const statusEl = document.getElementById("teacher-status-content");
+  const dot = document.getElementById("teacher-status-dot");
+  const cta = document.getElementById("teacher-live-cta");
+  if(liveStatus?.active){
+    statusEl.innerHTML = `<span class="live-badge sm"><span class="pulse"></span>LIVE</span> <span style="margin-left:8px;">${liveStatus.subject}</span>`;
+    dot.classList.add("on");
+    cta.textContent = "🔴 RETURN TO LIVE CLASS";
+  } else {
+    statusEl.textContent = "No class in progress";
+    dot.classList.remove("on");
+    cta.textContent = "🔴 TAKE LIVE CLASS NOW";
+  }
+  const list = document.getElementById("teacher-recordings-list");
+  const mine = recordings.filter(r => r.teacher === (currentUser?.name || TEACHER_NAME));
+  if(mine.length === 0){
+    list.innerHTML = `<p class="empty-text">No recordings yet. They'll appear here after your first live class.</p>`;
+  } else {
+    list.innerHTML = mine.map(r => recordingRowHtml(r)).join("");
+  }
+}
+function teacherLiveCta(){
+  if(liveStatus?.active) nav("screen-teacher-broadcast");
+  else nav("screen-teacher-live-setup");
+}
+function recordingRowHtml(r){
+  return `<div class="row-item">
+    <div><p class="rtitle">${escapeHtml(r.subject)}</p><p class="rmeta">Teacher: ${escapeHtml(r.teacher)} · ${r.date} · ${r.duration} min</p></div>
+    <button class="action" onclick='nav("screen-recording-watch",{recId:"${r.id}"})'>▶ Watch</button>
+  </div>`;
+}
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
-async function startClass(){
+/* ================= TEACHER: SUBJECT SETUP ================= */
+function renderLiveSubjectGrid(){
+  const grid = document.getElementById("live-subject-grid");
+  grid.innerHTML = SUBJECTS.map(s => `
+    <button class="subject-chip ${s===liveSubjectChoice ? "selected navy-select":""}" onclick="pickLiveSubject('${s}')">${s}</button>
+  `).join("");
+}
+function pickLiveSubject(s){ liveSubjectChoice = s; renderLiveSubjectGrid(); }
 
-    const subject =
-        document.getElementById("subject").value;
+/* ================= TEACHER: BROADCAST ================= */
+async function startTeacherBroadcast(){
+  nav("screen-teacher-broadcast");
+  document.getElementById("tb-subject-teacher").textContent = `${liveSubjectChoice} · ${currentUser.name}`;
+  document.getElementById("tb-loading").classList.remove("hidden");
+  document.getElementById("tb-video").classList.add("hidden");
+  document.getElementById("tb-perm-error").classList.add("hidden");
+  knownStudents = new Set();
+  peers = {};
+  micOn = true; camOn = true; facingMode = "user";
 
-    try{
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode }, audio:true });
+  }catch(err){
+    document.getElementById("tb-loading").classList.add("hidden");
+    document.getElementById("tb-perm-error").textContent = "⚠ Camera/microphone permission was denied or unavailable. Please allow access and reload.";
+    document.getElementById("tb-perm-error").classList.remove("hidden");
+    return;
+  }
+  const video = document.getElementById("tb-video");
+  video.srcObject = localStream;
+  document.getElementById("tb-loading").classList.add("hidden");
+  video.classList.remove("hidden");
 
-        /*
-        Prefer the BACK CAMERA.
-        On phones, facingMode: environment
-        requests the rear camera.
-        */
+  try{
+    mediaRecorder = new MediaRecorder(localStream, { mimeType:"video/webm;codecs=vp8,opus" });
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.start(1000);
+  }catch{ mediaRecorder = null; }
 
-        mediaStream = await navigator.mediaDevices
-            .getUserMedia({
-                video:{
-                    facingMode:{
-                        ideal:"environment"
-                    }
-                },
-                audio:true
-            });
+  broadcastStartTime = Date.now();
+  await sSet("live-status", { active:true, subject: liveSubjectChoice, teacherName: currentUser.name, startTime: broadcastStartTime });
+  await sSet("join-requests", {});
 
-        const camera =
-            document.getElementById("camera");
+  clearInterval(broadcastTimerInterval);
+  broadcastTimerInterval = setInterval(()=>{
+    const s = Math.floor((Date.now()-broadcastStartTime)/1000);
+    document.getElementById("tb-timer").textContent = `🕐 ${fmtTime(s)}`;
+  }, 1000);
 
-        camera.srcObject = mediaStream;
-        camera.classList.remove("hidden");
+  clearInterval(joinPollInterval);
+  joinPollInterval = setInterval(pollJoinRequests, 2000);
+}
 
-        recordedChunks = [];
+function fmtTime(totalSec){
+  const m = String(Math.floor(totalSec/60)).padStart(2,"0");
+  const s = String(totalSec%60).padStart(2,"0");
+  return `${m}:${s}`;
+}
 
-        mediaRecorder =
-            new MediaRecorder(mediaStream);
-
-        mediaRecorder.ondataavailable = function(event){
-
-            if(event.data.size > 0){
-                recordedChunks.push(event.data);
-            }
-
-        };
-
-        mediaRecorder.onstop = function(){
-
-            saveRecording(subject);
-
-        };
-
-        mediaRecorder.start();
-
-        localStorage.setItem(
-            "studybridgeLive",
-            JSON.stringify({
-                live:true,
-                subject:subject
-            })
-        );
-
-        document.getElementById("teacherStatus")
-            .innerHTML =
-            "🔴 <b>LIVE:</b> " + subject;
-
-        document.getElementById("startBtn")
-            .classList.add("hidden");
-
-        document.getElementById("stopBtn")
-            .classList.remove("hidden");
-
-        updateLiveStatus();
-
+async function pollJoinRequests(){
+  const reqs = (await sGet("join-requests")) || {};
+  const ids = Object.keys(reqs);
+  document.getElementById("tb-count").textContent = `👥 ${ids.length}`;
+  for(const id of ids){
+    if(!knownStudents.has(id)){
+      knownStudents.add(id);
+      connectToStudent(id);
     }
-    catch(error){
-
-        alert(
-            "Camera/Microphone permission is required.\n\n" +
-            error.message
-        );
-
-    }
-
+  }
 }
 
+async function connectToStudent(sid){
+  if(peers[sid] || !localStream) return;
+  const pc = new RTCPeerConnection(RTC_CONFIG);
+  peers[sid] = pc;
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-/* =========================
-   STOP LIVE CLASS
-========================= */
-
-function stopClass(){
-
-    if(!mediaRecorder) return;
-
-    mediaRecorder.stop();
-
-    if(mediaStream){
-
-        mediaStream.getTracks().forEach(
-            track => track.stop()
-        );
-
+  const localCandidates = [];
+  pc.onicecandidate = (e) => {
+    if(e.candidate){
+      localCandidates.push(e.candidate.toJSON());
+      sGet(`signal-${sid}`).then(cur => sSet(`signal-${sid}`, { ...(cur||{}), offerCandidates: localCandidates }));
     }
+  };
 
-    document.getElementById("camera")
-        .classList.add("hidden");
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await sSet(`signal-${sid}`, { offer:{ type:offer.type, sdp:offer.sdp }, offerCandidates:[] });
 
-    document.getElementById("startBtn")
-        .classList.remove("hidden");
-
-    document.getElementById("stopBtn")
-        .classList.add("hidden");
-
-    document.getElementById("teacherStatus")
-        .innerHTML =
-        "🟢 Class finished — saving recording...";
-
-    localStorage.removeItem("studybridgeLive");
-
-    updateLiveStatus();
-
+  const seen = new Set();
+  const poll = setInterval(async () => {
+    const sig = await sGet(`signal-${sid}`);
+    if(!sig) return;
+    if(sig.answer && pc.signalingState === "have-local-offer"){
+      try{ await pc.setRemoteDescription(new RTCSessionDescription(sig.answer)); }catch{}
+    }
+    if(sig.answerCandidates){
+      for(const c of sig.answerCandidates){
+        const key = JSON.stringify(c);
+        if(!seen.has(key)){ seen.add(key); try{ await pc.addIceCandidate(new RTCIceCandidate(c)); }catch{} }
+      }
+    }
+    if(["connected","failed","closed"].includes(pc.connectionState)) clearInterval(poll);
+  }, 1500);
 }
 
-
-/* =========================
-   SAVE RECORDING
-========================= */
-
-function saveRecording(subject){
-
-    const blob =
-        new Blob(
-            recordedChunks,
-            {type:"video/webm"}
-        );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const recording = {
-
-        id:Date.now(),
-
-        subject:subject,
-
-        date:new Date()
-            .toLocaleString(),
-
-        url:url
-
-    };
-
-    recordings.push(recording);
-
-    /*
-    Store metadata locally.
-    The video Blob itself remains available
-    during this page session.
-    */
-
-    localStorage.setItem(
-        "studybridgeRecordings",
-        JSON.stringify(
-            recordings.map(r => ({
-                id:r.id,
-                subject:r.subject,
-                date:r.date
-            }))
-        )
-    );
-
-    displayRecordings();
-
-    document.getElementById("teacherStatus")
-        .innerHTML =
-        "✅ Class finished and added to Recorded Classes.";
-
+function toggleMic(){
+  const track = localStream?.getAudioTracks()[0];
+  if(!track) return;
+  track.enabled = !track.enabled; micOn = track.enabled;
+  const c = document.getElementById("tb-mic-circle");
+  c.textContent = micOn ? "🎤" : "🔇";
+  c.classList.toggle("off", !micOn);
 }
-
-
-/* =========================
-   DISPLAY RECORDINGS
-========================= */
-
-function displayRecordings(){
-
-    const box =
-        document.getElementById("recordings");
-
-    if(recordings.length === 0){
-
-        box.innerHTML =
-            '<div class="empty">' +
-            'No recorded classes yet.' +
-            '</div>';
-
-        return;
-    }
-
-    box.innerHTML = "";
-
-    recordings.slice().reverse()
-        .forEach(function(recording){
-
-        const div =
-            document.createElement("div");
-
-        div.className = "recording";
-
-        div.innerHTML = `
-
-            <h3>📚 ${recording.subject}</h3>
-
-            <span class="badge">
-                Recorded Class
-            </span>
-
-            <br><br>
-
-            <small>
-                ${recording.date}
-            </small>
-
-            ${
-                recording.url
-                ?
-                `<video
-                    controls
-                    src="${recording.url}">
-                </video>`
-                :
-                `<p>
-                    Recording is available only
-                    in the current session.
-                </p>`
-            }
-
-        `;
-
-        box.appendChild(div);
-
+function toggleCam(){
+  const track = localStream?.getVideoTracks()[0];
+  if(!track) return;
+  track.enabled = !track.enabled; camOn = track.enabled;
+  const c = document.getElementById("tb-cam-circle");
+  c.textContent = camOn ? "🎥" : "🚫";
+  c.classList.toggle("off", !camOn);
+  document.getElementById("tb-cam-off").classList.toggle("hidden", camOn);
+}
+async function switchCamera(){
+  const newFacing = facingMode === "user" ? "environment" : "user";
+  try{
+    const newStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:newFacing }, audio:true });
+    const newVideoTrack = newStream.getVideoTracks()[0];
+    Object.values(peers).forEach(pc => {
+      const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
+      if(sender) sender.replaceTrack(newVideoTrack);
     });
-
+    const oldTrack = localStream.getVideoTracks()[0];
+    localStream.removeTrack(oldTrack); oldTrack.stop();
+    localStream.addTrack(newVideoTrack);
+    document.getElementById("tb-video").srcObject = localStream;
+    facingMode = newFacing;
+  }catch{ /* device may not have a second camera */ }
 }
 
+async function endClass(){
+  clearInterval(joinPollInterval);
+  clearInterval(broadcastTimerInterval);
+  Object.values(peers).forEach(pc => pc.close());
+  peers = {};
 
-/* =========================
-   LIVE STATUS
-========================= */
+  const finalize = async (blobUrl) => {
+    const durationMin = Math.max(1, Math.round((Date.now()-broadcastStartTime)/60000));
+    const rec = {
+      id: genId(),
+      subject: liveSubjectChoice,
+      teacher: currentUser.name,
+      date: new Date(broadcastStartTime).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}),
+      duration: durationMin,
+      blobUrl: blobUrl || null
+    };
+    const existing = (await sGet("recordings")) || [];
+    await sSet("recordings", [rec, ...existing]);
+    await sSet("live-status", { active:false });
+    await sSet("join-requests", {});
+    localStream?.getTracks().forEach(t=>t.stop());
+    if(blobUrl) window.__sessionRecordings = window.__sessionRecordings || {}, (window.__sessionRecordings[rec.id]=blobUrl);
+    nav("screen-teacher-dashboard");
+  };
 
-function updateLiveStatus(){
+  if(mediaRecorder && mediaRecorder.state !== "inactive"){
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunks, { type:"video/webm" });
+      finalize(URL.createObjectURL(blob));
+    };
+    mediaRecorder.stop();
+  } else {
+    finalize(null);
+  }
+}
 
-    const live =
-        JSON.parse(
-            localStorage.getItem("studybridgeLive")
-            || "null"
-        );
+/* ================= TEACHER: DPP ================= */
+function renderTeacherDppList(){
+  const list = document.getElementById("teacher-dpp-list");
+  const mine = dpps.filter(d => d.teacher === currentUser?.name);
+  if(mine.length === 0){
+    list.innerHTML = `<p class="empty-text">No DPPs created yet.</p>`;
+    return;
+  }
+  list.innerHTML = mine.map(d => `
+    <div class="row-item">
+      <div><p class="rtitle">${escapeHtml(d.title)}</p><p class="rmeta">${escapeHtml(d.subject)} · ${d.questions.length} MCQs · ${d.date}</p></div>
+      <span class="counter-pill" style="margin:0;">${d.questions.length}/${MAX_DPP_QUESTIONS}</span>
+    </div>
+  `).join("");
+}
 
-    const box =
-        document.getElementById("liveStatus");
+function initDppCreate(){
+  const sel = document.getElementById("dpp-subject");
+  sel.innerHTML = SUBJECTS.map(s => `<option value="${s}">${s}</option>`).join("");
+  document.getElementById("dpp-title").value = "";
+  document.getElementById("dpp-save-error").classList.add("hidden");
+  draftQuestions = [];
+  renderDppQuestions();
+}
 
-    if(!box) return;
+function addDppQuestion(){
+  if(draftQuestions.length >= MAX_DPP_QUESTIONS) return;
+  draftQuestions.push({ id: genId(), text:"", options:["","","",""], correct:0 });
+  renderDppQuestions();
+}
 
-    if(live && live.live){
+function renderDppQuestions(){
+  const wrap = document.getElementById("dpp-questions");
+  document.getElementById("dpp-counter").textContent = `${draftQuestions.length} / ${MAX_DPP_QUESTIONS} questions`;
+  wrap.innerHTML = draftQuestions.map((q, i) => `
+    <div class="q-block">
+      <button class="q-remove" onclick="removeDppQuestion('${q.id}')">✕</button>
+      <div class="qnum">Question ${i+1}</div>
+      <div class="field" style="margin-bottom:10px;">
+        <input placeholder="Enter question text" value="${escapeAttr(q.text)}" oninput="updateDppQuestion('${q.id}','text',this.value)"/>
+      </div>
+      ${[0,1,2,3].map(oi => `
+        <div class="opt-row">
+          <input type="radio" name="correct-${q.id}" ${q.correct===oi?"checked":""} onchange="updateDppQuestion('${q.id}','correct',${oi})"/>
+          <input type="text" placeholder="Option ${oi+1}" value="${escapeAttr(q.options[oi])}" oninput="updateDppOption('${q.id}',${oi},this.value)"/>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+}
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 
-        box.innerHTML = `
-            <div class="status">
-                🔴 <b>LIVE NOW</b><br><br>
-                Subject: ${live.subject}
-                <br><br>
-                👨‍🏫 Teacher is currently
-                taking the class.
-            </div>
-        `;
+function updateDppQuestion(id, field, value){
+  const q = draftQuestions.find(q=>q.id===id);
+  if(!q) return;
+  if(field==="text") q.text = value;
+  if(field==="correct") q.correct = value;
+}
+function updateDppOption(id, idx, value){
+  const q = draftQuestions.find(q=>q.id===id);
+  if(!q) return;
+  q.options[idx] = value;
+}
+function removeDppQuestion(id){
+  draftQuestions = draftQuestions.filter(q=>q.id!==id);
+  renderDppQuestions();
+}
 
-    }else{
+async function saveDpp(){
+  const title = document.getElementById("dpp-title").value.trim();
+  const subject = document.getElementById("dpp-subject").value;
+  const valid = draftQuestions.length > 0 && draftQuestions.every(q => q.text.trim() && q.options.every(o=>o.trim()));
+  const errEl = document.getElementById("dpp-save-error");
+  if(!title || !valid){
+    errEl.classList.remove("hidden");
+    return;
+  }
+  errEl.classList.add("hidden");
+  const dpp = {
+    id: genId(),
+    title, subject,
+    teacher: currentUser.name,
+    date: new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}),
+    questions: draftQuestions.map(q => ({ text:q.text, options:[...q.options], correct:q.correct }))
+  };
+  const existing = (await sGet("dpps")) || [];
+  await sSet("dpps", [dpp, ...existing]);
+  dpps = [dpp, ...existing];
+  nav("screen-teacher-dpp-list");
+}
+function openTeacherDppList(){ nav("screen-teacher-dpp-list"); }
 
-        box.innerHTML =
-            "No class is currently live.";
+/* ================= STUDENT DASHBOARD ================= */
+let studentSubjectFilter = null;
+function renderStudentDashboard(){
+  document.getElementById("student-name-display").textContent = currentUser?.name || "Student";
+  const banner = document.getElementById("student-live-banner");
+  if(liveStatus?.active){
+    banner.classList.remove("hidden");
+    document.getElementById("student-live-meta").textContent = `${liveStatus.subject} with ${liveStatus.teacherName}`;
+  } else {
+    banner.classList.add("hidden");
+  }
+  const grid = document.getElementById("student-subject-grid");
+  grid.innerHTML = SUBJECTS.map(s => `
+    <button class="subject-chip ${s===studentSubjectFilter ? "selected":""}" onclick="pickStudentSubject('${s}')">${s}</button>
+  `).join("");
+  const list = document.getElementById("student-recordings-list");
+  const filtered = studentSubjectFilter ? recordings.filter(r=>r.subject===studentSubjectFilter) : recordings;
+  document.getElementById("student-rec-title").textContent = "Recorded Classes" + (studentSubjectFilter ? ` · ${studentSubjectFilter}` : "");
+  list.innerHTML = filtered.length===0
+    ? `<p class="empty-text">No recordings available yet.</p>`
+    : filtered.map(r=>recordingRowHtml(r)).join("");
+}
+function pickStudentSubject(s){
+  studentSubjectFilter = studentSubjectFilter===s ? null : s;
+  renderStudentDashboard();
+}
+function joinLiveClass(){ nav("screen-student-live"); startStudentLive(); }
 
+/* ================= STUDENT: LIVE VIEWER ================= */
+async function startStudentLive(){
+  studentLiveStatus = "connecting";
+  document.getElementById("sl-loading").classList.remove("hidden");
+  document.getElementById("sl-video").classList.add("hidden");
+  document.getElementById("sl-fullscreen").classList.add("hidden");
+  document.getElementById("sl-subject").textContent = liveStatus?.subject || "";
+  document.getElementById("sl-teacher").textContent = "Teacher: " + (liveStatus?.teacherName || "");
+
+  studentId = currentUser.id || genId();
+  const pc = new RTCPeerConnection(RTC_CONFIG);
+  studentPc = pc;
+  const localCandidates = [];
+
+  pc.ontrack = (e) => {
+    const v = document.getElementById("sl-video");
+    v.srcObject = e.streams[0];
+    document.getElementById("sl-loading").classList.add("hidden");
+    v.classList.remove("hidden");
+    document.getElementById("sl-fullscreen").classList.remove("hidden");
+    studentLiveStatus = "connected";
+  };
+  pc.onicecandidate = (e) => {
+    if(e.candidate){
+      localCandidates.push(e.candidate.toJSON());
+      sGet(`signal-${studentId}`).then(cur => sSet(`signal-${studentId}`, { ...(cur||{}), answerCandidates: localCandidates }));
     }
+  };
 
+  const reqs = (await sGet("join-requests")) || {};
+  reqs[studentId] = { name: currentUser.name, status:"pending" };
+  await sSet("join-requests", reqs);
+
+  const seen = new Set();
+  clearInterval(studentSignalPoll);
+  studentSignalPoll = setInterval(async () => {
+    const sig = await sGet(`signal-${studentId}`);
+    if(sig?.offer && pc.signalingState==="stable" && !pc.currentRemoteDescription){
+      try{
+        await pc.setRemoteDescription(new RTCSessionDescription(sig.offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        const cur = (await sGet(`signal-${studentId}`)) || {};
+        await sSet(`signal-${studentId}`, { ...cur, answer:{ type:answer.type, sdp:answer.sdp } });
+      }catch{}
+    }
+    if(sig?.offerCandidates){
+      for(const c of sig.offerCandidates){
+        const key = JSON.stringify(c);
+        if(!seen.has(key)){ seen.add(key); try{ await pc.addIceCandidate(new RTCIceCandidate(c)); }catch{} }
+      }
+    }
+    const live = await sGet("live-status");
+    if(!live?.active){
+      studentLiveStatus = "ended";
+      clearInterval(studentSignalPoll);
+      showStudentLiveEnded();
+    }
+  }, 1500);
+
+  clearInterval(studentLiveTimer);
+  studentLiveTimer = setInterval(() => {
+    if(!liveStatus?.startTime) return;
+    const s = Math.floor((Date.now()-liveStatus.startTime)/1000);
+    document.getElementById("sl-timer").textContent = `🕐 ${fmtTime(s)}`;
+  }, 1000);
 }
 
+function showStudentLiveEnded(){
+  const stage = document.getElementById("sl-stage");
+  stage.innerHTML = `<div class="stage-msg">✅ Class has ended<br/><span style="font-size:12px;">The recording will appear in Recorded Classes shortly.</span></div>`;
+}
 
-/* =========================
-   INITIAL LOAD
-========================= */
+function leaveLiveAndGoBack(){
+  clearInterval(studentSignalPoll);
+  clearInterval(studentLiveTimer);
+  studentPc?.close();
+  nav("screen-student-dashboard");
+}
+function goFullscreen(){
+  const el = document.getElementById("sl-stage");
+  if(el.requestFullscreen) el.requestFullscreen();
+}
 
-displayRecordings();
-updateLiveStatus();
+/* ================= STUDENT: DPP ================= */
+function openStudentDppList(){ nav("screen-student-dpp-list"); }
+function renderStudentDppList(){
+  const list = document.getElementById("student-dpp-list");
+  if(dpps.length===0){
+    list.innerHTML = `<p class="empty-text">No DPPs available yet.</p>`;
+    return;
+  }
+  list.innerHTML = dpps.map(d => `
+    <div class="row-item">
+      <div><p class="rtitle">${escapeHtml(d.title)}</p><p class="rmeta">${escapeHtml(d.subject)} · Teacher: ${escapeHtml(d.teacher)} · ${d.questions.length} MCQs</p></div>
+      <button class="action" onclick='openDppAttempt("${d.id}")'>Attempt →</button>
+    </div>
+  `).join("");
+}
 
+let activeAttempt = null; // {dpp, answers:[]}
+function openDppAttempt(id){
+  const dpp = dpps.find(d=>d.id===id);
+  if(!dpp) return;
+  activeAttempt = { dpp, answers: new Array(dpp.questions.length).fill(null) };
+  document.getElementById("attempt-title").textContent = dpp.title;
+  document.getElementById("attempt-meta").textContent = `${dpp.subject} · Teacher: ${dpp.teacher} · ${dpp.questions.length} questions`;
+  renderAttemptQuestions();
+  nav("screen-student-dpp-attempt");
+}
+function renderAttemptQuestions(){
+  const wrap = document.getElementById("attempt-questions");
+  wrap.innerHTML = activeAttempt.dpp.questions.map((q,qi) => `
+    <div class="quiz-q">
+      <p class="qtext">${qi+1}. ${escapeHtml(q.text)}</p>
+      ${q.options.map((opt,oi) => `
+        <label class="quiz-opt">
+          <input type="radio" name="attempt-q-${qi}" onchange="setAttemptAnswer(${qi},${oi})"/>
+          ${escapeHtml(opt)}
+        </label>
+      `).join("")}
+    </div>
+  `).join("");
+}
+function setAttemptAnswer(qi, oi){ activeAttempt.answers[qi] = oi; }
+
+function submitDppAttempt(){
+  const { dpp, answers } = activeAttempt;
+  let score = 0;
+  dpp.questions.forEach((q,i) => { if(answers[i]===q.correct) score++; });
+  document.getElementById("result-score").innerHTML = `${score}<span id="result-total">/${dpp.questions.length}</span>`;
+  const rq = document.getElementById("result-questions");
+  rq.innerHTML = dpp.questions.map((q,qi) => `
+    <div class="quiz-q">
+      <p class="qtext">${qi+1}. ${escapeHtml(q.text)}</p>
+      ${q.options.map((opt,oi) => {
+        let cls = "";
+        if(oi===q.correct) cls = "correct";
+        else if(oi===answers[qi] && answers[qi]!==q.correct) cls = "incorrect";
+        return `<div class="quiz-opt ${cls}">${escapeHtml(opt)} ${oi===q.correct?"✓":(oi===answers[qi]?"✗":"")}</div>`;
+      }).join("")}
+    </div>
+  `).join("");
+  nav("screen-student-dpp-result");
+}
+
+/* ================= RECORDING WATCH ================= */
+function renderRecordingWatch(){
+  const rec = recordings.find(r=>r.id===params.recId);
+  const video = document.getElementById("rec-video");
+  const unavailable = document.getElementById("rec-unavailable");
+  if(!rec){
+    nav(currentUser?.role==="teacher" ? "screen-teacher-dashboard" : "screen-student-dashboard");
+    return;
+  }
+  document.getElementById("rec-subject").textContent = rec.subject;
+  document.getElementById("rec-teacher").textContent = `Teacher: ${rec.teacher} · ${rec.date} · ${rec.duration} min`;
+  const blobUrl = (window.__sessionRecordings && window.__sessionRecordings[rec.id]) || rec.blobUrl;
+  if(blobUrl){
+    video.src = blobUrl;
+    video.classList.remove("hidden");
+    unavailable.classList.add("hidden");
+  } else {
+    video.classList.add("hidden");
+    unavailable.classList.remove("hidden");
+  }
+}
+function goBackFromRecording(){
+  nav(currentUser?.role==="teacher" ? "screen-teacher-dashboard" : "screen-student-dashboard");
+}
 </script>
-
 </body>
 </html>
