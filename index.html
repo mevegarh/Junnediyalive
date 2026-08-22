@@ -161,6 +161,27 @@
   .score-hero .big-num{font-size:44px;font-weight:800;color:var(--navy);}
   .score-hero .big-num span{font-size:20px;color:var(--slate-400);font-weight:600;}
 
+  /* Tokens / leaderboard */
+  .token-cta{width:100%;border:2px solid var(--amber);border-radius:18px;background:#fff;color:var(--amber);font-weight:800;font-size:16px;
+    padding:18px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;margin-bottom:22px;transition:background .15s;}
+  .token-cta:hover{background:#fffbeb;}
+  .my-rank-card{padding:24px;text-align:center;margin-bottom:18px;background:linear-gradient(135deg,#1e3a8a,#0284c7);color:#fff;}
+  .my-rank-card .rank-num{font-size:38px;font-weight:800;line-height:1;}
+  .my-rank-card .rank-label{font-size:12px;opacity:.85;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .my-rank-card .token-count{margin-top:10px;font-size:14px;font-weight:600;}
+  .my-rank-card .trophy-line{margin-top:10px;font-size:22px;}
+  .leader-row{display:flex;align-items:center;gap:12px;border:1px solid var(--slate-200);border-radius:12px;
+    padding:11px 14px;margin-bottom:8px;}
+  .leader-row.me{border-color:var(--sky);background:#f0f9ff;}
+  .leader-row .pos{width:26px;text-align:center;font-weight:800;color:var(--slate-500);font-size:14px;flex-shrink:0;}
+  .leader-row.top1 .pos{color:#d97706;}
+  .leader-row .lname{flex:1;font-weight:600;font-size:14px;}
+  .leader-row .ltokens{font-size:13px;color:var(--slate-500);font-weight:700;white-space:nowrap;}
+  .leader-row .ltrophy{font-size:16px;width:22px;text-align:center;}
+  .trophy-legend{display:flex;justify-content:space-between;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .trophy-legend .item{flex:1;min-width:80px;text-align:center;background:var(--slate-100);border-radius:12px;padding:10px 6px;font-size:11px;color:var(--slate-500);font-weight:700;}
+  .trophy-legend .item .em{font-size:20px;display:block;margin-bottom:4px;}
+
   ::selection{background:#bfdbfe;}
 </style>
 </head>
@@ -348,6 +369,7 @@
     <div class="subject-grid" id="student-subject-grid" style="margin-bottom:20px;"></div>
 
     <button class="dpp-cta" onclick="openStudentDppList()">📝 Daily Practice Papers (DPP)</button>
+    <button class="token-cta" onclick="openStudentTokens()">🏆 My Tokens &amp; Leaderboard</button>
 
     <div class="card section-card">
       <p class="section-title" id="student-rec-title">Recorded Classes</p>
@@ -407,6 +429,29 @@
   </div>
 </div>
 
+<!-- ================= STUDENT TOKENS / LEADERBOARD ================= -->
+<div id="screen-student-tokens" class="screen hidden">
+  <div class="topbar"><button class="back-btn" onclick="nav('screen-student-dashboard')">←</button><div class="logo"><div class="mark">📘</div><div class="name">StudyBridge</div></div><div style="width:24px"></div></div>
+  <div class="page" style="max-width:520px;">
+    <div class="card my-rank-card">
+      <div class="rank-label">Your Rank</div>
+      <div class="rank-num" id="my-rank-num">—</div>
+      <div class="token-count" id="my-token-count">0 tokens</div>
+      <div class="trophy-line" id="my-trophy-line">Keep earning tokens to unlock trophies</div>
+    </div>
+    <div class="trophy-legend">
+      <div class="item"><span class="em">🥈</span>Silver<br/>100+ tokens</div>
+      <div class="item"><span class="em">🥇</span>Gold<br/>300+ tokens</div>
+      <div class="item"><span class="em">💎</span>Diamond<br/>600+ tokens</div>
+    </div>
+    <div class="card section-card">
+      <p class="section-title">Leaderboard — All Students</p>
+      <div id="leaderboard-list"><p class="empty-text">No students have earned tokens yet.</p></div>
+    </div>
+    <p class="hint-text" style="text-align:left;">Earn tokens by joining live classes (+20) and answering DPP questions correctly (+10 each).</p>
+  </div>
+</div>
+
 <!-- ================= RECORDING WATCH ================= -->
 <div id="screen-recording-watch" class="screen dark-screen hidden">
   <div class="live-header"><button class="back-btn" style="color:#cbd5e1;" onclick="goBackFromRecording()">← Back</button><div></div></div>
@@ -436,6 +481,25 @@ const DEMO_USERNAME = "JunnediyaLive";
 const DEMO_PASSWORD = "junnediyanightlive";
 const RTC_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 const MAX_DPP_QUESTIONS = 30;
+const TOKENS_PER_LIVE_JOIN = 20;
+const TOKENS_PER_CORRECT_ANSWER = 10;
+const TROPHIES = [
+  { min: 600, emoji: "💎", label: "Diamond" },
+  { min: 300, emoji: "🥇", label: "Gold" },
+  { min: 100, emoji: "🥈", label: "Silver" }
+];
+function trophyFor(tokens){
+  return TROPHIES.find(t => tokens >= t.min) || null;
+}
+async function awardTokens(amount){
+  if(!currentUser || currentUser.role !== "student" || amount <= 0) return;
+  const board = (await sGet("student-tokens")) || {};
+  const entry = board[currentUser.id] || { name: currentUser.name, tokens: 0 };
+  entry.name = currentUser.name;
+  entry.tokens = (entry.tokens || 0) + amount;
+  board[currentUser.id] = entry;
+  await sSet("student-tokens", board);
+}
 
 const genId = () => Math.random().toString(36).slice(2, 10);
 
@@ -466,6 +530,25 @@ let broadcastTimerInterval = null;
 let joinPollInterval = null;
 let micOn = true, camOn = true, facingMode = "user";
 
+/* Requests a specific camera. Many devices/browsers ignore a plain
+   facingMode hint and silently default to the back camera, so we
+   force it with `exact` first and only relax if that's truly
+   unsupported on this device. `wantAudio` defaults to true for the
+   initial broadcast start; camera flips pass false so we don't
+   re-request the microphone (many phones only allow one active mic
+   capture, which was silently breaking the flip). */
+async function getCameraStream(facing, wantAudio = true){
+  try{
+    return await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: facing } }, audio: wantAudio });
+  }catch(e1){
+    try{
+      return await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio: wantAudio });
+    }catch(e2){
+      return await navigator.mediaDevices.getUserMedia({ video:true, audio: wantAudio });
+    }
+  }
+}
+
 /* student live state */
 let studentPc = null;
 let studentId = null;
@@ -488,6 +571,7 @@ function nav(screenId, p = {}){
   if(screenId === "screen-teacher-dpp-create") initDppCreate();
   if(screenId === "screen-student-dashboard") renderStudentDashboard();
   if(screenId === "screen-student-dpp-list") renderStudentDppList();
+  if(screenId === "screen-student-tokens") renderStudentTokens();
   if(screenId === "screen-recording-watch") renderRecordingWatch();
 }
 
@@ -590,7 +674,7 @@ async function startTeacherBroadcast(){
   micOn = true; camOn = true; facingMode = "user";
 
   try{
-    localStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode }, audio:true });
+    localStream = await getCameraStream(facingMode);
   }catch(err){
     document.getElementById("tb-loading").classList.add("hidden");
     document.getElementById("tb-perm-error").textContent = "⚠ Camera/microphone permission was denied or unavailable. Please allow access and reload.";
@@ -696,18 +780,35 @@ function toggleCam(){
 async function switchCamera(){
   const newFacing = facingMode === "user" ? "environment" : "user";
   try{
-    const newStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:newFacing }, audio:true });
+    const newStream = await getCameraStream(newFacing, false); // video only — keep existing mic track untouched
     const newVideoTrack = newStream.getVideoTracks()[0];
+    if(!newVideoTrack) throw new Error("No video track returned");
+
     Object.values(peers).forEach(pc => {
-      const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
-      if(sender) sender.replaceTrack(newVideoTrack);
+      try{
+        const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
+        if(sender) sender.replaceTrack(newVideoTrack);
+      }catch{ /* peer connection may have closed mid-flip */ }
     });
+
     const oldTrack = localStream.getVideoTracks()[0];
-    localStream.removeTrack(oldTrack); oldTrack.stop();
+    localStream.removeTrack(oldTrack);
+    oldTrack.stop();
     localStream.addTrack(newVideoTrack);
-    document.getElementById("tb-video").srcObject = localStream;
+    newVideoTrack.enabled = camOn;
+
+    // stop any extra tracks the fallback path may have grabbed (e.g. audio if a device forced it)
+    newStream.getTracks().forEach(t => { if(t !== newVideoTrack) t.stop(); });
+
+    const video = document.getElementById("tb-video");
+    video.srcObject = null;
+    video.srcObject = localStream;
+    video.play().catch(()=>{});
+
     facingMode = newFacing;
-  }catch{ /* device may not have a second camera */ }
+  }catch(err){
+    console.warn("Camera flip failed — this device may only expose one camera.", err);
+  }
 }
 
 async function endClass(){
@@ -864,7 +965,7 @@ function pickStudentSubject(s){
   studentSubjectFilter = studentSubjectFilter===s ? null : s;
   renderStudentDashboard();
 }
-function joinLiveClass(){ nav("screen-student-live"); startStudentLive(); }
+function joinLiveClass(){ nav("screen-student-live"); startStudentLive(); awardTokens(TOKENS_PER_LIVE_JOIN); }
 
 /* ================= STUDENT: LIVE VIEWER ================= */
 async function startStudentLive(){
@@ -997,6 +1098,11 @@ function submitDppAttempt(){
   let score = 0;
   dpp.questions.forEach((q,i) => { if(answers[i]===q.correct) score++; });
   document.getElementById("result-score").innerHTML = `${score}<span id="result-total">/${dpp.questions.length}</span>`;
+  if(score > 0){
+    awardTokens(score * TOKENS_PER_CORRECT_ANSWER);
+    document.getElementById("result-total").insertAdjacentHTML("afterend",
+      `<div style="font-size:13px;color:var(--amber);font-weight:700;margin-top:6px;">+${score * TOKENS_PER_CORRECT_ANSWER} tokens earned 🪙</div>`);
+  }
   const rq = document.getElementById("result-questions");
   rq.innerHTML = dpp.questions.map((q,qi) => `
     <div class="quiz-q">
@@ -1010,6 +1116,46 @@ function submitDppAttempt(){
     </div>
   `).join("");
   nav("screen-student-dpp-result");
+}
+
+/* ================= STUDENT: TOKENS & LEADERBOARD ================= */
+function openStudentTokens(){ nav("screen-student-tokens"); }
+
+async function renderStudentTokens(){
+  const board = (await sGet("student-tokens")) || {};
+  // make sure the current student appears even before they've earned anything
+  if(currentUser?.role === "student" && !board[currentUser.id]){
+    board[currentUser.id] = { name: currentUser.name, tokens: 0 };
+  }
+  const rows = Object.entries(board)
+    .map(([id, v]) => ({ id, name: v.name, tokens: v.tokens || 0 }))
+    .sort((a,b) => b.tokens - a.tokens);
+
+  const myIndex = rows.findIndex(r => r.id === currentUser?.id);
+  const myTokens = myIndex >= 0 ? rows[myIndex].tokens : 0;
+  const myTrophy = trophyFor(myTokens);
+
+  document.getElementById("my-rank-num").textContent = myIndex >= 0 ? `#${myIndex+1}` : "—";
+  document.getElementById("my-token-count").textContent = `${myTokens} tokens`;
+  document.getElementById("my-trophy-line").textContent = myTrophy
+    ? `${myTrophy.emoji} ${myTrophy.label} Trophy unlocked!`
+    : "Keep earning tokens to unlock trophies";
+
+  const list = document.getElementById("leaderboard-list");
+  if(rows.length === 0){
+    list.innerHTML = `<p class="empty-text">No students have earned tokens yet.</p>`;
+    return;
+  }
+  list.innerHTML = rows.map((r, i) => {
+    const trophy = trophyFor(r.tokens);
+    const isMe = r.id === currentUser?.id;
+    return `<div class="leader-row ${isMe ? "me":""} ${i===0 ? "top1":""}">
+      <div class="pos">${i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : (i+1)}</div>
+      <div class="lname">${escapeHtml(r.name)}${isMe ? " (You)" : ""}</div>
+      <div class="ltrophy">${trophy ? trophy.emoji : ""}</div>
+      <div class="ltokens">${r.tokens} 🪙</div>
+    </div>`;
+  }).join("");
 }
 
 /* ================= RECORDING WATCH ================= */
